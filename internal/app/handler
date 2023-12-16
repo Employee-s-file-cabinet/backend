@@ -1,0 +1,54 @@
+package handler
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/Employee-s-file-cabinet/backend/internal/server/internal/api"
+	"github.com/muonsoft/validation/validator"
+
+	MyLogic "../../internal/logic"
+)
+
+type CustomError struct {
+	Message string
+	Code    int
+}
+
+func (s *server) Authorization(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var auth api.Auth
+
+	if err := json.NewDecoder(r.Body).Decode(&auth); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := auth.Validate(ctx, validator.Instance()); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	code, token := MyLogic.LogicAuthorization(r, auth)
+	if code == 400 {
+		err := fmt.Errorf("Неверный запрос, код ошибки 400")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	response := api.Token{AccessToken: token.PasetoToken, ExpiresIn: token.ExpirationTime}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
+}
+
+func (s *server) Authentication(w httpResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	myHttpStatus :=  LogicAuthentication(r *http.Request)
+	if myHttpStatus = 400 {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
