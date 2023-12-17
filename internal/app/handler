@@ -1,0 +1,70 @@
+package handler
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/Employee-s-file-cabinet/backend/internal/server/internal/api"
+	"github.com/go-eden/slf4go"
+	"github.com/muonsoft/validation/validator"
+
+	MyLogic "../../internal/logic"
+)
+
+func LoginPasswordToken(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var auth api.Auth
+
+	logger := slf4go.Get("example")
+
+	if err := json.NewDecoder(r.Body).Decode(&auth); err != nil {
+		message = api.Error{Message: "Decoding error"}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(message); err != nil {
+			loger.Error(err)
+		}
+	}
+
+	if err := auth.Validate(ctx, validator.Instance()); err != nil {
+		message = api.Error{Message: "Validating error"}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(message); err != nil {
+			loger.Error(err)
+		}
+	}
+
+	token, err := MyLogic.LogicLoginPasswordToken(r, auth)
+	if err != nil {
+		message = api.Error{Message: "Authentication error"}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(message); err != nil {
+			loger.Error(err)
+		}
+	}
+
+	response := api.Token{AccessToken: token.PasetoToken, ExpiresIn: token.ExpirationTime}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		loger.Error(err)
+	}
+}
+
+func Authotizating(next http.Headerfunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		logger := slf4go.Get("example")
+		if err := MyLogic.LogicAuthotizating(r * http.Request); err != nil {
+			message = api.Error{Message: "Authotizating error"}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			if err := json.NewEncoder(w).Encode(message); err != nil {
+				loger.Error(err)
+			}
+		}
+		next(r, w)
+	}
+}
