@@ -19,22 +19,19 @@
 
 ### Формат прав доступа
 
-Для организации ролей используется подход RBAC.
+Для организации ролей используется подход доступа к ресурсам REST.
 
 Для управления политиками доступа - библиотека casbin.
 
-| sub (субъект) | obj (объект)         | act (действие)                                                   |
-|---------------|----------------------|------------------------------------------------------------------|
-| candidate     | candidate            | create own (может создавать только себя - загрузить свою анкету) |
-| employee      | employee             | read own (может просматривать только свои данные)                |
-| recruiter     | candidate            | create, read, update, delete                                     |
-| hr            | employee             | create, read, update, delete                                     |
-| admin         | recruiter, HR, admin | create, update, delete settings   <br/>read, update own settings |
+| sub (роль) | obj (ресурс)                                                                                                                                                                                                                                                                                     | act (метод HTTP)                                                |
+|------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| employee   | /users/{user_id}                                                                                                                                                                                                                                                                                 | GET (только если user_id равен id запрашивающего данный ресурс) |
+| hr         | /users                                                                                                                                                                                                                                                                                           | GET, POST                                                       |
+| hr         | /users/{user_id}                                                                                                                                                                                                                                                                                 | GET, PATCH                                                      |
+| hr         | /users/{user_id}/photo                                                                                                                                                                                                                                                                           | POST                                                            |
+| hr         | /users/{user_id}/contracts <br/>/users/{user_id}/passports <br/>/users/{user_id}/passports/{passport_id}/visas <br/>/users/{user_id}/vacations <br/>/users/{user_id}/scans <br/>/users/{user_id}/educations <br/>/users/{user_id}/trainings                                                      | GET, POST                                                       |
+| hr         | /users/{user_id}/contracts/{contract_id} <br/>/users/{user_id}/passports/{passport_id} <br/>/users/{user_id}/passports/{passport_id}/visas/{visa_id} <br/>/users/{user_id}/vacations/{vacation_id} <br/>/users/{user_id}/educations/{education_id} <br/>/users/{user_id}/trainings/{training_id} | GET, PATCH, DELETE                                              |
 
-Где:
-* `create, read, update, delete` - создание, чтение/просмотр, обновление/модификация, удаление
-* `own` - субъект может совершать указанные действия только над собой
-* `settings` - настройки
 
 ### Передача токена 
 Токен подписывается приватным ключом и разделяется на две части: header.payload и signature. При успешной аутентификации сервер передает клиенту 
