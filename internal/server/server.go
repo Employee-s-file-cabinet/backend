@@ -30,7 +30,7 @@ const (
 	defaultShutdownPeriod = 30 * time.Second
 )
 
-func New(cfg Config, userRepository handlers.UserRepository, s3FileUploader handlers.S3FileUploader, logger *slog.Logger) *server {
+func New(cfg Config, userRepository handlers.UserRepository, s3FileUploader handlers.S3FileRepository, logger *slog.Logger) *server {
 	logger = logger.With(slog.String("from", "http-server"))
 
 	srv := &http.Server{
