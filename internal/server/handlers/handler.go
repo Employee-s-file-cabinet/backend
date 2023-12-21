@@ -1,22 +1,12 @@
 package handlers
 
 import (
-	"context"
 	"log/slog"
 
 	"github.com/Employee-s-file-cabinet/backend/internal/server/internal/api"
-	"github.com/Employee-s-file-cabinet/backend/internal/storage/s3"
 )
 
 var _ api.ServerInterface = (*handler)(nil)
-
-type S3FileUploader interface {
-	UploadFile(context.Context, s3.UploadableFile) error
-}
-
-type UserRepository interface {
-	ExistUser(ctx context.Context, userID int) (bool, error)
-}
 
 type handler struct {
 	fileUploader   S3FileUploader
