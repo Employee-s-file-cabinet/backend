@@ -8,8 +8,9 @@ import (
 	"github.com/Employee-s-file-cabinet/backend/internal/storage/s3"
 )
 
-type S3FileUploader interface {
+type S3FileRepository interface {
 	UploadFile(context.Context, s3.File) error
+	DownloadFile(ctx context.Context, prefix, name string) (file s3.File, closeFn func() error, err error)
 }
 
 type UserRepository interface {
