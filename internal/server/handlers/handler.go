@@ -9,18 +9,26 @@ import (
 var _ api.ServerInterface = (*handler)(nil)
 
 type handler struct {
-	fileRepository S3FileRepository
-	userRepository UserRepository
-	logger         *slog.Logger
+	fileRepository       S3FileRepository
+	dbRepository         DBRepository
+	passwordVerification PasswordVerification
+	tokenManagement      TokenManagement
+	logger               *slog.Logger
 }
 
-func New(userRepository UserRepository, s3FileRepository S3FileRepository, logger *slog.Logger) *handler {
+func New(dbRepository DBRepository,
+	s3FileRepository S3FileRepository,
+	passwordVerification PasswordVerification,
+	tokenManagement TokenManagement,
+	logger *slog.Logger) *handler {
 	logger = logger.With(slog.String("from", "handler"))
 
 	h := &handler{
-		fileRepository: s3FileRepository,
-		userRepository: userRepository,
-		logger:         logger,
+		fileRepository:       s3FileRepository,
+		dbRepository:         dbRepository,
+		passwordVerification: passwordVerification,
+		tokenManagement:      tokenManagement,
+		logger:               logger,
 	}
 
 	return h

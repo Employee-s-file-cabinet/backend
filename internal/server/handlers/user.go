@@ -110,7 +110,7 @@ func (h *handler) UploadPhoto(w http.ResponseWriter, r *http.Request, userID int
 		return
 	}
 
-	if exist, err := h.userRepository.ExistUser(ctx, userID); err != nil {
+	if exist, err := h.dbRepository.ExistUser(ctx, userID); err != nil {
 		serr.ReportError(r, err, false)
 		serr.ErrorMessage(w, r,
 			http.StatusInternalServerError,

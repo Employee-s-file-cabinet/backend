@@ -15,10 +15,11 @@ import (
 type PasetoMaker struct {
 	paseto       *paseto.V2
 	symmetricKey []byte
+	duration     time.Duration
 }
 
 // NewPasetoMaker возвращает PasetoMaker для управления токенами.
-func NewPasetoMaker(symmetricKey string) (*PasetoMaker, error) {
+func NewPasetoMaker(symmetricKey string, duration time.Duration) (*PasetoMaker, error) {
 	if len(symmetricKey) != chacha20poly1305.KeySize {
 		return nil, fmt.Errorf("invalid key size: must be %d characters", chacha20poly1305.KeySize)
 	}
@@ -26,12 +27,13 @@ func NewPasetoMaker(symmetricKey string) (*PasetoMaker, error) {
 	return &PasetoMaker{
 		paseto:       paseto.NewV2(),
 		symmetricKey: []byte(symmetricKey),
+		duration:     duration,
 	}, nil
 }
 
 // Create создаёт токен для переданных данных и продолжительности.
-func (m *PasetoMaker) Create(data model.TokenData, duration time.Duration) (string, error) {
-	payload, err := NewPayload(data, duration)
+func (m *PasetoMaker) Create(data model.TokenData) (string, error) {
+	payload, err := NewPayload(data, m.duration)
 	if err != nil {
 		return "", err
 	}

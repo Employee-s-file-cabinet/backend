@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS "authorizations"
     "id"            bigserial PRIMARY KEY,
     "user_id"       bigint  NOT NULL,
     "password_hash" varchar NOT NULL,
-    "role"          bigint  NOT NULL,
+    "role_id"       bigint  NOT NULL,
     "created_at"    timestamptz DEFAULT (now()),
     "updated_at"    timestamptz
 );
@@ -362,7 +362,7 @@ ALTER TABLE "authorizations"
     ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "authorizations"
-    ADD FOREIGN KEY ("role") REFERENCES "roles" ("id");
+    ADD FOREIGN KEY ("role_id") REFERENCES "roles" ("id");
 
 ALTER TABLE "educations"
     ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
