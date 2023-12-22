@@ -27,18 +27,20 @@ $$;
 
 CREATE TABLE IF NOT EXISTS "departments"
 (
-    "id"         bigserial PRIMARY KEY,
-    "name"       varchar NOT NULL,
-    "created_at" timestamptz DEFAULT (now()),
-    "updated_at" timestamptz
+    "id"          bigserial PRIMARY KEY,
+    "title"       varchar NOT NULL,
+    "description" varchar,
+    "created_at"  timestamptz DEFAULT (now()),
+    "updated_at"  timestamptz
 );
 
 CREATE TABLE IF NOT EXISTS "positions"
 (
     "id"            bigserial PRIMARY KEY,
-    "name"          varchar NOT NULL,
+    "title"         varchar NOT NULL,
+    "description"   varchar,
     "department_id" bigint  NOT NULL,
-    "position_id"   bigint  NOT NULL,
+    "position_id"   bigint,
     "created_at"    timestamptz DEFAULT (now()),
     "updated_at"    timestamptz
 );
@@ -48,7 +50,7 @@ CREATE TABLE IF NOT EXISTS "organization_structure"
     "id"                        bigserial PRIMARY KEY,
     "head_department_id"        bigint,
     "head_position_id"          bigint,
-    "subordinate_department_id" bigint NOT NULL,
+    "subordinate_department_id" bigint,
     "created_at"                timestamptz DEFAULT (now()),
     "updated_at"                timestamptz
 );
@@ -64,8 +66,8 @@ CREATE TABLE IF NOT EXISTS "users"
     "place_of_birth"       varchar NOT NULL,
     "position_id"          bigint  NOT NULL,
     "department_id"        bigint  NOT NULL,
-    "grade"                varchar,
-    "phone_numbers"        jsonb,
+    "grade"                varchar NOT NULL,
+    "phone_numbers"        jsonb   NOT NULL,
     "work_email"           varchar NOT NULL,
     "registration_address" varchar NOT NULL,
     "residential_address"  varchar NOT NULL,
@@ -218,7 +220,7 @@ CREATE TABLE IF NOT EXISTS "indexations"
 CREATE TABLE IF NOT EXISTS "finances"
 (
     "id"                  bigserial PRIMARY KEY,
-    "user_id"             bigint  NOT NULL,
+    "user_id"             bigint NOT NULL,
     "salary"              bigint NOT NULL,
     "social_security_tax" bigint NOT NULL,
     "income_tax"          bigint NOT NULL,
