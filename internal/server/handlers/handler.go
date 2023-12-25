@@ -12,14 +12,14 @@ type handler struct {
 	fileRepository       S3FileRepository
 	dbRepository         DBRepository
 	passwordVerification PasswordVerification
-	tokenManagement      TokenManagement
+	tokenManager         TokenManager
 	logger               *slog.Logger
 }
 
 func New(dbRepository DBRepository,
 	s3FileRepository S3FileRepository,
 	passwordVerification PasswordVerification,
-	tokenManagement TokenManagement,
+	tokenManager TokenManager,
 	logger *slog.Logger) *handler {
 	logger = logger.With(slog.String("from", "handler"))
 
@@ -27,7 +27,7 @@ func New(dbRepository DBRepository,
 		fileRepository:       s3FileRepository,
 		dbRepository:         dbRepository,
 		passwordVerification: passwordVerification,
-		tokenManagement:      tokenManagement,
+		tokenManager:         tokenManager,
 		logger:               logger,
 	}
 

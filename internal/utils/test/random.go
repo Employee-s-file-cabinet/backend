@@ -4,14 +4,9 @@ package test
 import (
 	"math/rand"
 	"strings"
-	"time"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz"
-
-func init() {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
-}
 
 // RandomInt генерирует случайное значение типа int в диапазоне [min, max].
 func RandomInt(min, max int) int {

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/muonsoft/validation/validator"
@@ -34,18 +35,22 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authnData, err := h.dbRepository.GetAuthnData(ctx, auth.Login)
+	if err == sql.ErrNoRows {
+		serr.ErrorMessage(w, r, http.StatusForbidden, serr.ErrLoginFailure.Error(), nil)
+		return
+	}
 	if err != nil {
-		serr.ErrorMessage(w, r, http.StatusForbidden, "Login failed; Invalid user ID or password", nil)
+		serr.ErrorMessage(w, r, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
 	err = h.passwordVerification.Check(auth.Password, authnData.PasswordHash)
 	if err != nil {
-		serr.ErrorMessage(w, r, http.StatusForbidden, "Login failed; Invalid user ID or password", nil)
+		serr.ErrorMessage(w, r, http.StatusForbidden, serr.ErrLoginFailure.Error(), nil)
 		return
 	}
 
-	token, _ := h.tokenManagement.Create(
+	token, _ := h.tokenManager.Create(
 		model.TokenData{
 			UserID: authnData.UserID,
 			RoleID: authnData.RoleID,

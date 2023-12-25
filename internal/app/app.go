@@ -25,12 +25,12 @@ func Run(pctx context.Context, cfg *config.Config, logger *slog.Logger) error {
 		return err
 	}
 
-	tokenManagement, err := token.NewPasetoMaker(cfg.HTTP.Token.SecretKey, cfg.HTTP.Token.Lifetime)
+	tokenManager, err := token.NewPasetoMaker(cfg.HTTP.Token.SecretKey, cfg.HTTP.Token.Lifetime)
 	if err != nil {
 		return err
 	}
 
-	srv := server.New(cfg.HTTP, db, s3Storage, tokenManagement, logger)
+	srv := server.New(cfg.HTTP, db, s3Storage, tokenManager, logger)
 
 	eg, ctx := errgroup.WithContext(pctx)
 	eg.Go(func() error {

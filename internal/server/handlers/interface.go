@@ -26,8 +26,8 @@ type PasswordVerification interface {
 	Check(password, hashedPassword string) error
 }
 
-// TokenManagement абстракция для управления токенами.
-type TokenManagement interface {
+// TokenManager абстракция для управления токенами.
+type TokenManager interface {
 	// Create создаёт токен для переданных данных и продолжительности действия.
 	Create(data model.TokenData) (string, error)
 
