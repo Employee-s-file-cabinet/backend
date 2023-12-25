@@ -42,6 +42,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             cd /srv
+            rm -rf .env
             echo HTTP_PORT=${{ secrets.HTTP_PORT }}  >> .env
             echo HTTP_TOKEN_SECRET_KEY=${{ secrets.HTTP_TOKEN_SECRET_KEY }}  >> .env
             echo PG_DSN=${{ secrets.PG_DSN }}  >> .env
