@@ -1,5 +1,6 @@
 #!/bin/bash
 
+whoami
 cd /srv || exit
 touch .env
 {
