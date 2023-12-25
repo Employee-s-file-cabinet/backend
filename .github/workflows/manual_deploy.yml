@@ -20,7 +20,7 @@ jobs:
         run: go mod download
 
       - name: Build app
-        run: GOOS=linux go build -o ./build/ecabinet ./cmd/ -v
+        run: GOOS=linux go build -o ./build/ecabinet -v ./cmd/
 
       - name: Copy environment variables to server
         uses: appleboy/scp-action@v0.1.4
