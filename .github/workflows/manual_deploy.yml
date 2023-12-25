@@ -41,8 +41,9 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            whoami
             cd /srv
+            sudo chmod u+x export_env.sh
+            ls -lh
             sudo ./export_env.sh
 
       - name: Copy app to server
