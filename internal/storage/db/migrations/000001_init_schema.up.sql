@@ -16,15 +16,6 @@ $$
     END
 $$;
 
-DO
-$$
-    BEGIN
-        IF NOT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'work_type') THEN
-            create type work_type AS ENUM ('Удаленная', 'Смешанная', 'Офис');
-        END IF;
-    END
-$$;
-
 CREATE TABLE IF NOT EXISTS "departments"
 (
     "id"          bigserial PRIMARY KEY,
@@ -39,7 +30,7 @@ CREATE TABLE IF NOT EXISTS "positions"
     "id"            bigserial PRIMARY KEY,
     "title"         varchar NOT NULL,
     "description"   varchar,
-    "department_id" bigint  NOT NULL,
+    "department_id" bigint,
     "position_id"   bigint,
     "created_at"    timestamptz DEFAULT (now()),
     "updated_at"    timestamptz
@@ -178,13 +169,22 @@ CREATE TABLE IF NOT EXISTS "benefit_uses"
     UNIQUE (benefit_id)
 );
 
+CREATE TABLE IF NOT EXISTS "work_types"
+(
+    "id"          bigserial PRIMARY KEY,
+    "title"       varchar NOT NULL,
+    "description" varchar,
+    "created_at"  timestamptz DEFAULT (now()),
+    "updated_at"  timestamptz
+);
+
 CREATE TABLE IF NOT EXISTS "contracts"
 (
     "id"            bigserial PRIMARY KEY,
     "user_id"       bigint        NOT NULL,
     "number"        varchar       NOT NULL,
     "contract_type" contract_type NOT NULL,
-    "work_type"     work_type     NOT NULL,
+    "work_type_id"  bigint        NOT NULL,
     "date_begin"    date          NOT NULL,
     "date_end"      date,
     "created_at"    timestamptz DEFAULT (now()),
@@ -211,8 +211,8 @@ CREATE TABLE IF NOT EXISTS "indexations"
     "user_id"       bigint  NOT NULL,
     "date_begin"    date    NOT NULL,
     "percents"      integer NOT NULL,
-    "currency"      integer NOT NULL,
-    "salary_before" integer NOT NULL,
+    "currency"      bigint  NOT NULL,
+    "salary_before" bigint  NOT NULL,
     "created_at"    timestamptz DEFAULT (now()),
     "updated_at"    timestamptz
 );
@@ -397,9 +397,11 @@ ALTER TABLE "benefits_benefit_uses"
 ALTER TABLE "benefits_benefit_uses"
     ADD FOREIGN KEY ("benefit_uses_benefit_id") REFERENCES "benefit_uses" ("benefit_id");
 
-
 ALTER TABLE "contracts"
     ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
+ALTER TABLE "contracts"
+    ADD FOREIGN KEY ("work_type_id") REFERENCES "work_types" ("id");
 
 ALTER TABLE "experiences"
     ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
