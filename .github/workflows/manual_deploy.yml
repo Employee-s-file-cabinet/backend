@@ -41,8 +41,9 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
+            whoami
             cd /srv
-            ./export_env.sh
+            sudo ./export_env.sh
 
       - name: Copy app to server
         uses: appleboy/scp-action@v0.1.4
