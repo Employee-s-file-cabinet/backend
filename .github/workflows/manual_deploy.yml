@@ -30,13 +30,11 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd /srv
-            echo HTTP_PORT=${{ secrets.HTTP_PORT }}  >> .env
-            echo HTTP_TOKEN_SECRET_KEY=${{ secrets.HTTP_TOKEN_SECRET_KEY }}  >> .env
-            echo PG_DSN=${{ secrets.PG_DSN }}  >> .env
-            echo S3_ACCESS_KEY_ID=${{ secrets.S3_ACCESS_KEY_ID }}  >> .env
-            echo S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}  >> .env
-            ls -lh
+            export HTTP_PORT=${{ secrets.HTTP_PORT }}
+            export HTTP_TOKEN_SECRET_KEY=${{ secrets.HTTP_TOKEN_SECRET_KEY }}
+            export PG_DSN=${{ secrets.PG_DSN }}
+            export S3_ACCESS_KEY_ID=${{ secrets.S3_ACCESS_KEY_ID }}
+            export S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}
 
       - name: Copy app to server
         uses: appleboy/scp-action@v0.1.4
