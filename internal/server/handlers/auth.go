@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/muonsoft/validation/validator"
@@ -35,7 +36,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authnData, err := h.dbRepository.GetAuthnData(ctx, auth.Login)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		serr.ErrorMessage(w, r, http.StatusForbidden, serr.ErrLoginFailure.Error(), nil)
 		return
 	}
@@ -57,8 +58,10 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		})
 
 	cookie := &http.Cookie{
-		Name:  "ecabinet-token",
-		Value: token,
+		Name:     "ecabinet-token",
+		Value:    token,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
 	}
 	http.SetCookie(w, cookie)
 	w.WriteHeader(http.StatusOK)
