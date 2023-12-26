@@ -61,6 +61,9 @@ CREATE TABLE IF NOT EXISTS "users"
     "grade"            varchar NOT NULL,
     "phone_numbers"    jsonb   NOT NULL,
     "work_email"       varchar NOT NULL,
+    "registration_address" varchar NOT NULL,
+    "residential_address"  varchar NOT NULL,
+    "nationality"          varchar NOT NULL,
     "insurance_number" varchar NOT NULL,
     "taxpayer_number"  varchar NOT NULL,
     "created_at"       timestamptz DEFAULT (now()),
@@ -107,9 +110,6 @@ CREATE TABLE IF NOT EXISTS "passports"
     "number"               integer NOT NULL,
     "issued_date"          date    NOT NULL,
     "issued_by"            varchar NOT NULL,
-    "registration_address" varchar NOT NULL,
-    "residential_address"  varchar NOT NULL,
-    "nationality"          varchar NOT NULL,
     "created_at"           timestamptz DEFAULT (now()),
     "updated_at"           timestamptz
 );
