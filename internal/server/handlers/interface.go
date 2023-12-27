@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"time"
 
 	"github.com/Employee-s-file-cabinet/backend/internal/model"
 	"github.com/Employee-s-file-cabinet/backend/internal/storage/s3"
@@ -15,6 +16,14 @@ type S3FileRepository interface {
 type DBRepository interface {
 	ExistUser(ctx context.Context, userID int) (bool, error)
 	GetAuthnData(ctx context.Context, login string) (model.AuthnDAO, error)
+	ExistEmployee(ctx context.Context, workEmail string) (bool, error)
+	ChangePass(ctx context.Context, login, hash string) error
+}
+
+type KeyRepository interface {
+	Set(ctx context.Context, key string, value string, duration time.Duration) error
+	Get(ctx context.Context, key string) (string, error)
+	Delete(ctx context.Context, key string) error
 }
 
 // PasswordVerification абстракция хеширования и проверки паролей.

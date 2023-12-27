@@ -14,6 +14,7 @@ import (
 	"github.com/Employee-s-file-cabinet/backend/internal/server/handlers"
 	"github.com/Employee-s-file-cabinet/backend/internal/server/internal/api"
 	"github.com/Employee-s-file-cabinet/backend/internal/server/middleware"
+	"github.com/Employee-s-file-cabinet/backend/internal/utils/email"
 	"github.com/Employee-s-file-cabinet/backend/internal/utils/password"
 )
 
@@ -35,7 +36,10 @@ func New(cfg Config,
 	dbRepository handlers.DBRepository,
 	s3FileRepository handlers.S3FileRepository,
 	tokenManager handlers.TokenManager,
+	keyRepository handlers.KeyRepository,
+	mail *email.Mail,
 	logger *slog.Logger) *server {
+
 	logger = logger.With(slog.String("from", "http-server"))
 
 	srv := &http.Server{
@@ -52,7 +56,7 @@ func New(cfg Config,
 	}
 
 	passwordVerification := password.New()
-	handler := handlers.New(dbRepository, s3FileRepository, passwordVerification, tokenManager, logger)
+	handler := handlers.New(dbRepository, s3FileRepository, passwordVerification, tokenManager, keyRepository, mail, logger)
 
 	mux := chi.NewRouter()
 	mux.NotFound(srvErrors.NotFound)

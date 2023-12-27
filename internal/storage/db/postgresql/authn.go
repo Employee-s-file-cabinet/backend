@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Employee-s-file-cabinet/backend/internal/model"
 )
@@ -18,4 +19,14 @@ func (s *storage) GetAuthnData(ctx context.Context, login string) (model.AuthnDA
 	var authnData model.AuthnDAO
 	err := s.GetContext(ctx, &authnData, selectAuthnData, login)
 	return authnData, err
+}
+
+func (s *storage) ExistEmployee(ctx context.Context, workEmail string) (bool, error) {
+	//TODO: запрос на наличие пользователя
+	return false, fmt.Errorf("not implemented")
+}
+
+func (s *storage) ChangePass(ctx context.Context, login, hash string) error {
+	//TODO: запрос на смену пароля
+	return fmt.Errorf("not implemented")
 }
