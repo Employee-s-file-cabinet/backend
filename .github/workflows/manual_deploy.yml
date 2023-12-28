@@ -47,7 +47,7 @@ jobs:
           echo "$SSH_KEY" > deploy_key
           chmod 600 deploy_key
           rsync -avz -e 'ssh -i deploy_key -o StrictHostKeyChecking=no' \
-          --copy-as=${{ secrets.SERVER_USERNAME }}:${{ secrets.SERVER_USERNAME }} \
+          --chown=${{ secrets.SERVER_USERNAME }}:${{ secrets.SERVER_USERNAME }} \
           ecabinet ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }}
 
       - name: Remove old systemd service file
