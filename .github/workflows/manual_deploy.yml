@@ -1,14 +1,32 @@
-name: Manual Release
+name: Manual Deploy
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy'
+        required: true
 
 jobs:
-  build:
-    name: Build
+  deploy:
     runs-on: ubuntu-latest
+    env:
+      HOST: ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}
+      DEPLOY_DIRECTORY: /srv
+      ENV_FILE_PATH: /srv/.env
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
+      - name: Check if tag exists
+        run: |
+          git fetch --all --tags
+          if ! git tag | grep -q "^${{ github.event.inputs.tag }}$"; then
+            echo "error: Tag '${{ github.event.inputs.tag }}' not found"
+            exit 1
+          fi
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -16,11 +34,10 @@ jobs:
           go-version: 1.21
           check-latest: true
 
-      - name: Install dependencies
-        run: go mod download
-
       - name: Build app
-        run: GOOS=linux go build -o ./build/ecabinet -v ./cmd/
+        run: |
+          go mod download
+          GOOS=linux go build -o ./build/ecabinet -v ./cmd/
 
       - name: Copy app to server
         uses: appleboy/scp-action@v0.1.4
@@ -30,8 +47,28 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           source: build/ecabinet
-          target: /srv/
+          target: ${{ env.DEPLOY_DIRECTORY }}
           strip_components: 1
+
+      - name: Remove old systemd service file
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            rm -f /etc/systemd/system/ecabinet.service
+
+      - name: Copy systemd service file
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: ${{ github.workspace }}/deploy/ecabinet.service
+          target: /etc/systemd/system/ecabinet.service
 
       - name: Set environment variables on server
         uses: appleboy/ssh-action@v1.0.0
@@ -41,14 +78,12 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd /srv
-            rm -rf .env
-            echo HTTP_PORT=${{ secrets.HTTP_PORT }}  >> .env
-            echo HTTP_TOKEN_SECRET_KEY=${{ secrets.HTTP_TOKEN_SECRET_KEY }}  >> .env
-            echo PG_DSN=${{ secrets.PG_DSN }}  >> .env
-            echo S3_ACCESS_KEY_ID=${{ secrets.S3_ACCESS_KEY_ID }}  >> .env
-            echo S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}  >> .env
-            ls -lh
+            echo HTTP_PORT=${{ secrets.HTTP_PORT }}  > ${{ env.ENV_FILE_PATH }}
+            echo HTTP_TOKEN_SECRET_KEY=${{ secrets.HTTP_TOKEN_SECRET_KEY }}  >> ${{ env.ENV_FILE_PATH }}
+            echo PG_DSN=${{ secrets.PG_DSN }}  >> ${{ env.ENV_FILE_PATH }}
+            echo S3_ACCESS_KEY_ID=${{ secrets.S3_ACCESS_KEY_ID }}  >> ${{ env.ENV_FILE_PATH }}
+            echo S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}  >> ${{ env.ENV_FILE_PATH }}
+            ls -lh ${{ env.DEPLOY_DIRECTORY }}
 
       - name: Restart app on server
         uses: appleboy/ssh-action@v1.0.0
@@ -58,8 +93,5 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd /srv
-            chown root:root ecabinet
-            ls -l
-            sudo systemctl restart ecabinet
-            sudo systemctl status ecabinet
+            systemctl daemon-reload && systemctl restart ecabinet
+            systemctl status ecabinet
