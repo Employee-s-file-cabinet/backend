@@ -2,7 +2,6 @@
 package api
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
@@ -163,8 +162,6 @@ type MiddlewareFunc func(http.Handler) http.Handler
 func (siw *ServerInterfaceWrapper) ListDepartments(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListDepartments(w, r)
 	}))
@@ -283,8 +280,6 @@ func (siw *ServerInterfaceWrapper) ListUsers(w http.ResponseWriter, r *http.Requ
 
 	var err error
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	// Parameter object where we will unmarshal all parameters from the context
 	var params ListUsersParams
 
@@ -335,8 +330,6 @@ func (siw *ServerInterfaceWrapper) ListUsers(w http.ResponseWriter, r *http.Requ
 func (siw *ServerInterfaceWrapper) AddUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserCreateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AddUser(w, r)
 	}))
@@ -364,8 +357,6 @@ func (siw *ServerInterfaceWrapper) GetUser(w http.ResponseWriter, r *http.Reques
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{"user:2"})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetUserParams
@@ -404,8 +395,6 @@ func (siw *ServerInterfaceWrapper) PatchUser(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PatchUser(w, r, userID)
 	}))
@@ -434,8 +423,6 @@ func (siw *ServerInterfaceWrapper) ListContracts(w http.ResponseWriter, r *http.
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListContracts(w, r, userID)
 	}))
@@ -461,8 +448,6 @@ func (siw *ServerInterfaceWrapper) AddContract(w http.ResponseWriter, r *http.Re
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AddContract(w, r, userID)
@@ -501,8 +486,6 @@ func (siw *ServerInterfaceWrapper) DeleteContract(w http.ResponseWriter, r *http
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.DeleteContract(w, r, userID, contractID)
 	}))
@@ -537,8 +520,6 @@ func (siw *ServerInterfaceWrapper) GetContract(w http.ResponseWriter, r *http.Re
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "contract_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetContract(w, r, userID, contractID)
@@ -575,8 +556,6 @@ func (siw *ServerInterfaceWrapper) PatchContract(w http.ResponseWriter, r *http.
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PatchContract(w, r, userID, contractID)
 	}))
@@ -605,8 +584,6 @@ func (siw *ServerInterfaceWrapper) ListEducations(w http.ResponseWriter, r *http
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListEducations(w, r, userID)
 	}))
@@ -632,8 +609,6 @@ func (siw *ServerInterfaceWrapper) AddEducation(w http.ResponseWriter, r *http.R
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AddEducation(w, r, userID)
@@ -672,8 +647,6 @@ func (siw *ServerInterfaceWrapper) DeleteEducation(w http.ResponseWriter, r *htt
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.DeleteEducation(w, r, userID, educationID)
 	}))
@@ -708,8 +681,6 @@ func (siw *ServerInterfaceWrapper) GetEducation(w http.ResponseWriter, r *http.R
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "education_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetEducation(w, r, userID, educationID)
@@ -746,8 +717,6 @@ func (siw *ServerInterfaceWrapper) PatchEducation(w http.ResponseWriter, r *http
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PatchEducation(w, r, userID, educationID)
 	}))
@@ -776,8 +745,6 @@ func (siw *ServerInterfaceWrapper) ListPassports(w http.ResponseWriter, r *http.
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListPassports(w, r, userID)
 	}))
@@ -803,8 +770,6 @@ func (siw *ServerInterfaceWrapper) AddPassport(w http.ResponseWriter, r *http.Re
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AddPassport(w, r, userID)
@@ -843,8 +808,6 @@ func (siw *ServerInterfaceWrapper) DeletePassport(w http.ResponseWriter, r *http
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.DeletePassport(w, r, userID, passportID)
 	}))
@@ -880,8 +843,6 @@ func (siw *ServerInterfaceWrapper) GetPassport(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetPassport(w, r, userID, passportID)
 	}))
@@ -916,8 +877,6 @@ func (siw *ServerInterfaceWrapper) PatchPassport(w http.ResponseWriter, r *http.
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "passport_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PatchPassport(w, r, userID, passportID)
@@ -956,8 +915,6 @@ func (siw *ServerInterfaceWrapper) ListVisas(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListVisas(w, r, userID, passportID)
 	}))
@@ -992,8 +949,6 @@ func (siw *ServerInterfaceWrapper) AddVisa(w http.ResponseWriter, r *http.Reques
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "passport_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AddVisa(w, r, userID, passportID)
@@ -1041,8 +996,6 @@ func (siw *ServerInterfaceWrapper) DeleteVisa(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.DeleteVisa(w, r, userID, passportID, visaID)
 	}))
@@ -1086,8 +1039,6 @@ func (siw *ServerInterfaceWrapper) GetVisa(w http.ResponseWriter, r *http.Reques
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "visa_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetVisa(w, r, userID, passportID, visaID)
@@ -1133,8 +1084,6 @@ func (siw *ServerInterfaceWrapper) PatchVisa(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PatchVisa(w, r, userID, passportID, visaID)
 	}))
@@ -1162,8 +1111,6 @@ func (siw *ServerInterfaceWrapper) UploadPhoto(w http.ResponseWriter, r *http.Re
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UploadPhoto(w, r, userID)
@@ -1193,8 +1140,6 @@ func (siw *ServerInterfaceWrapper) ListScans(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListScans(w, r, userID)
 	}))
@@ -1220,8 +1165,6 @@ func (siw *ServerInterfaceWrapper) UploadScan(w http.ResponseWriter, r *http.Req
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UploadScan(w, r, userID)
@@ -1260,8 +1203,6 @@ func (siw *ServerInterfaceWrapper) DeleteScan(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.DeleteScan(w, r, userID, scanID)
 	}))
@@ -1297,8 +1238,6 @@ func (siw *ServerInterfaceWrapper) GetScan(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetScan(w, r, userID, scanID)
 	}))
@@ -1325,8 +1264,6 @@ func (siw *ServerInterfaceWrapper) ListTrainings(w http.ResponseWriter, r *http.
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListTrainings(w, r, userID)
 	}))
@@ -1352,8 +1289,6 @@ func (siw *ServerInterfaceWrapper) AddTraining(w http.ResponseWriter, r *http.Re
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AddTraining(w, r, userID)
@@ -1392,8 +1327,6 @@ func (siw *ServerInterfaceWrapper) DeleteTraining(w http.ResponseWriter, r *http
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.DeleteTraining(w, r, userID, trainingID)
 	}))
@@ -1428,8 +1361,6 @@ func (siw *ServerInterfaceWrapper) GetTraining(w http.ResponseWriter, r *http.Re
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "training_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetTraining(w, r, userID, trainingID)
@@ -1466,8 +1397,6 @@ func (siw *ServerInterfaceWrapper) PatchTraining(w http.ResponseWriter, r *http.
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PatchTraining(w, r, userID, trainingID)
 	}))
@@ -1496,8 +1425,6 @@ func (siw *ServerInterfaceWrapper) ListVacations(w http.ResponseWriter, r *http.
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListVacations(w, r, userID)
 	}))
@@ -1523,8 +1450,6 @@ func (siw *ServerInterfaceWrapper) AddVacation(w http.ResponseWriter, r *http.Re
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AddVacation(w, r, userID)
@@ -1563,8 +1488,6 @@ func (siw *ServerInterfaceWrapper) DeleteVacation(w http.ResponseWriter, r *http
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.DeleteVacation(w, r, userID, vacationID)
 	}))
@@ -1600,8 +1523,6 @@ func (siw *ServerInterfaceWrapper) GetVacation(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserReadAccess)
-
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetVacation(w, r, userID, vacationID)
 	}))
@@ -1636,8 +1557,6 @@ func (siw *ServerInterfaceWrapper) PatchVacation(w http.ResponseWriter, r *http.
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "vacation_id", Err: err})
 		return
 	}
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, UserUpdateAccess)
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PatchVacation(w, r, userID, vacationID)

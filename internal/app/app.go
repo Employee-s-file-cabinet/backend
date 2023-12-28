@@ -32,7 +32,7 @@ func Run(ctx context.Context, cfg *config.Config, logger *slog.Logger) error {
 	}
 
 	// create user service
-	userDbRepo, err := userdb.NewStorage(db)
+	userDBRepo, err := userdb.NewStorage(db)
 	if err != nil {
 		return err
 	}
@@ -40,18 +40,18 @@ func Run(ctx context.Context, cfg *config.Config, logger *slog.Logger) error {
 	if err != nil {
 		return err
 	}
-	userService := user.NewService(userDbRepo, userFileRepo)
+	userService := user.NewService(userDBRepo, userFileRepo)
 
 	// create auth service
 	tokenMng, err := token.NewPasetoMaker(cfg.HTTP.Token.SecretKey, cfg.HTTP.Token.Lifetime)
 	if err != nil {
 		return err
 	}
-	authDbRepo, err := authdb.NewStorage(db)
+	authDBRepo, err := authdb.NewStorage(db)
 	if err != nil {
 		return err
 	}
-	authService := auth.NewService(authDbRepo, password.New(), tokenMng)
+	authService := auth.NewService(authDBRepo, password.New(), tokenMng)
 
 	srv := httpsrv.New(cfg.HTTP, userService, authService, logger)
 

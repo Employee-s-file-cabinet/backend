@@ -72,6 +72,7 @@ func (s *storage) List(ctx context.Context, pms model.ListUsersParams) ([]model.
 	if pms.Query != "" {
 		sb = sb.Where(pgq.ILike{"lastname": pms.Query + "%"})
 	}
+	// nolint:exhaustive
 	switch pms.SortBy {
 	case model.ListUsersParamsSortByDepartment:
 		sb = sb.OrderBy("department, lastname, firstname")

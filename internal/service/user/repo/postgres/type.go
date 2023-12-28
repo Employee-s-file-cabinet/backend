@@ -41,11 +41,9 @@ type phoneNumbers map[string]string
 func (ph *phoneNumbers) Scan(val interface{}) error {
 	switch v := val.(type) {
 	case []byte:
-		json.Unmarshal(v, &ph)
-		return nil
+		return json.Unmarshal(v, &ph)
 	case string:
-		json.Unmarshal([]byte(v), &ph)
-		return nil
+		return json.Unmarshal([]byte(v), &ph)
 	default:
 		return fmt.Errorf("unsupported type: %T", v)
 	}

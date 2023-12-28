@@ -61,7 +61,7 @@ func (h *handler) ListUsers(w http.ResponseWriter, r *http.Request, params api.L
 			nil)
 		return
 	}
-	ulist := convertUsersToApiShortUsers(users)
+	ulist := convertUsersToAPIShortUsers(users)
 	if err := response.JSON(w,
 		http.StatusOK,
 		api.ListUsersJSONResponseBody{
@@ -117,7 +117,7 @@ func (h *handler) GetUser(w http.ResponseWriter, r *http.Request, userID uint64,
 		return
 	}
 
-	if err := response.JSON(w, http.StatusOK, toApiFullUser(u)); err != nil {
+	if err := response.JSON(w, http.StatusOK, toAPIFullUser(u)); err != nil {
 		serr.ReportError(r, err, false)
 		serr.ErrorMessage(w, r,
 			http.StatusInternalServerError,
@@ -203,7 +203,7 @@ func (h *handler) UploadPhoto(w http.ResponseWriter, r *http.Request, userID uin
 	}
 }
 
-func toApiFullUser(u *model.User) api.FullUser {
+func toAPIFullUser(u *model.User) api.FullUser {
 	var gr api.Gender
 	switch u.Gender {
 	case model.GenderFemale:
@@ -212,7 +212,7 @@ func toApiFullUser(u *model.User) api.FullUser {
 		gr = api.GenderMale
 	}
 	return api.FullUser{
-		ShortUser: convertUserToApiShortUser(u),
+		ShortUser: convertUserToAPIShortUser(u),
 		DateOfBirth: types.Date{
 			Time: u.DateOfBirth,
 		},
@@ -231,15 +231,15 @@ func toApiFullUser(u *model.User) api.FullUser {
 	}
 }
 
-func convertUsersToApiShortUsers(users []model.User) []api.ShortUser {
+func convertUsersToAPIShortUsers(users []model.User) []api.ShortUser {
 	res := make([]api.ShortUser, len(users))
 	for i := 0; i < len(users); i++ {
-		res[i] = convertUserToApiShortUser(&users[i])
+		res[i] = convertUserToAPIShortUser(&users[i])
 	}
 	return res
 }
 
-func convertUserToApiShortUser(u *model.User) api.ShortUser {
+func convertUserToAPIShortUser(u *model.User) api.ShortUser {
 	var phn map[string]api.PhoneNumber
 	if u.PhoneNumbers != nil {
 		phn = make(map[string]api.PhoneNumber, len(u.PhoneNumbers))
