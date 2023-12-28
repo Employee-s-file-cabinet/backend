@@ -53,7 +53,10 @@ func Run(ctx context.Context, cfg *config.Config, logger *slog.Logger) error {
 	}
 	authService := auth.NewService(authDBRepo, password.New(), tokenMng)
 
-	srv := httpsrv.New(cfg.HTTP, userService, authService, logger)
+	srv, err := httpsrv.New(cfg.HTTP, cfg.EnvType, userService, authService, logger)
+	if err != nil {
+		return err
+	}
 
 	eg, ectx := errgroup.WithContext(ctx)
 	eg.Go(func() error {

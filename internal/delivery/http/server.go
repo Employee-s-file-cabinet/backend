@@ -9,7 +9,9 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jub0bs/fcors"
 
+	"github.com/Employee-s-file-cabinet/backend/internal/config/env"
 	srvErrors "github.com/Employee-s-file-cabinet/backend/internal/delivery/http/errors"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/api"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/handlers"
@@ -30,10 +32,10 @@ type server struct {
 	logger     *slog.Logger
 }
 
-func New(cfg Config,
+func New(cfg Config, envType env.Type,
 	userService handlers.UserService,
 	authService handlers.AuthService,
-	logger *slog.Logger) *server {
+	logger *slog.Logger) (*server, error) {
 	logger = logger.With(slog.String("from", "http-server"))
 
 	srv := &http.Server{
@@ -57,12 +59,28 @@ func New(cfg Config,
 	mux.Use(middleware.LogAccess)
 	mux.Use(middleware.RecoverPanic)
 
+	switch envType {
+	case env.Development, env.Testing:
+		cors, err := fcors.AllowAccessWithCredentials(
+			fcors.FromOrigins(
+				"https://localhost:*",
+				"http://localhost:*"),
+			fcors.WithAnyMethod(),
+			fcors.WithAnyRequestHeaders(),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create CORS middleware: %w", err)
+		}
+		mux.Use(cors)
+	default:
+	}
+
 	srv.Handler = api.HandlerWithOptions(handler, api.ChiServerOptions{
 		BaseURL:    baseURL,
 		BaseRouter: mux,
 	})
 
-	return s
+	return s, nil
 }
 
 func (s *server) Run(ctx context.Context) error {

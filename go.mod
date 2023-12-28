@@ -9,6 +9,7 @@ require (
 	github.com/henvic/pgq v0.0.2
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgx/v5 v5.5.1
+	github.com/jub0bs/fcors v0.7.0
 	github.com/minio/minio-go/v7 v7.0.66
 	github.com/muonsoft/validation v0.17.0
 	github.com/o1egl/paseto v1.0.0
