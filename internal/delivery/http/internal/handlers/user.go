@@ -10,7 +10,6 @@ import (
 
 	serr "github.com/Employee-s-file-cabinet/backend/internal/delivery/http/errors"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/api"
-	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/request"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/response"
 	"github.com/Employee-s-file-cabinet/backend/internal/service/user"
 	"github.com/Employee-s-file-cabinet/backend/internal/service/user/model"
@@ -150,14 +149,6 @@ func (h *handler) PatchUser(w http.ResponseWriter, r *http.Request, userID uint6
 // @Router  /users/{user_id}/photo [post]
 func (h *handler) UploadPhoto(w http.ResponseWriter, r *http.Request, userID uint64) {
 	ctx := r.Context()
-
-	if !request.CheckContentType([]string{"image/png", "image/jpeg"}, r.Header) {
-		serr.ErrorMessage(w, r,
-			http.StatusBadRequest,
-			serr.ErrInvalidContentType.Error(),
-			nil)
-		return
-	}
 
 	var (
 		length                   int64
