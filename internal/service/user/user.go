@@ -11,7 +11,10 @@ import (
 	"github.com/Employee-s-file-cabinet/backend/pkg/repoerr"
 )
 
-const MaxPhotoSize = 20 << 20 // bytes
+const (
+	MaxPhotoSize  = 20 << 20 // bytes
+	photoFileName = "photo"
+)
 
 func (s *service) Get(ctx context.Context, userID uint64) (*model.User, error) {
 	const op = "user service: get user"
@@ -36,6 +39,30 @@ func (s *service) List(ctx context.Context, params model.ListUsersParams) ([]mod
 	return users, count, nil
 }
 
+func (s *service) DownloadPhoto(ctx context.Context, userID uint64) (model.File, func() error, error) {
+	const op = "user service: download photo"
+
+	// if exist, err := s.userRepository.Exist(ctx, userID); err != nil {
+	// 	return model.File{}, nil, fmt.Errorf("%s: %w", op, err)
+	// } else if !exist {
+	// 	return model.File{}, nil, fmt.Errorf("%s: %w", op, ErrUserNotFound)
+	// }
+
+	f, closeFn, err := s.fileRepository.Download(ctx, strconv.FormatUint(userID, 10), photoFileName)
+	if err != nil {
+		if errors.Is(err, repoerr.ErrRecordNotFound) {
+			return model.File{}, nil, fmt.Errorf("%s: %w", op, ErrPhotoNotFound)
+		}
+		return model.File{}, nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return model.File{
+		ContentType: f.ContentType,
+		Size:        f.Size,
+		Reader:      f.Reader,
+	}, closeFn, nil
+}
+
 func (s *service) UploadPhoto(ctx context.Context, userID uint64, f model.File) error {
 	const op = "user service: upload photo"
 
@@ -51,7 +78,7 @@ func (s *service) UploadPhoto(ctx context.Context, userID uint64, f model.File) 
 
 	if err := s.fileRepository.Upload(ctx, s3.File{
 		Prefix:      strconv.FormatUint(userID, 10),
-		Name:        "photo",
+		Name:        photoFileName,
 		Reader:      f.Reader,
 		Size:        f.Size,
 		ContentType: f.ContentType,
