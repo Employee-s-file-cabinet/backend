@@ -53,3 +53,8 @@ func (m *PasetoMaker) Verify(in string) (*Payload, error) {
 
 	return payload, nil
 }
+
+// Expires возвращает время истечения срока годности токена (начиная с текущего момента времени).
+func (m *PasetoMaker) Expires() time.Time {
+	return time.Now().Add(m.duration)
+}

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"time"
 
 	"github.com/Employee-s-file-cabinet/backend/internal/service/auth/model"
 	"github.com/Employee-s-file-cabinet/backend/internal/service/auth/model/token"
@@ -27,4 +28,7 @@ type tokenManager interface {
 
 	// Verify проверяет, является ли токен действительным.
 	Verify(in string) (*token.Payload, error)
+
+	// Expires возвращает время истечения срока годности токена (начиная с текущего момента времени).
+	Expires() time.Time
 }

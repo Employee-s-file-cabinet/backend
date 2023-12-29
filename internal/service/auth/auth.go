@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/Employee-s-file-cabinet/backend/internal/service/auth/model/token"
 	"github.com/Employee-s-file-cabinet/backend/pkg/repoerr"
@@ -35,4 +36,8 @@ func (s *service) Login(ctx context.Context, login, password string) (string, er
 	}
 
 	return t, nil
+}
+
+func (s *service) Expires() time.Time {
+	return s.tokenManager.Expires()
 }

@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/api"
 	umodel "github.com/Employee-s-file-cabinet/backend/internal/service/user/model"
@@ -18,6 +19,7 @@ type UserService interface {
 
 type AuthService interface {
 	Login(ctx context.Context, login, password string) (string, error)
+	Expires() time.Time
 }
 
 type handler struct {
