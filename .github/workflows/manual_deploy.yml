@@ -37,7 +37,7 @@ jobs:
       - name: Build app
         run: |
           go mod download
-          GOOS=linux go build -o ecabinet -v ./cmd/
+          GOOS=linux go build -ldflags="-X 'main.buildCommit=${{ github.sha }}'" -o ecabinet -v ./cmd/
 
       - name: Copy app to server
         env:
@@ -66,6 +66,8 @@ jobs:
           echo PG_DSN=${{ secrets.PG_DSN }}  >> ${{ env.ENV_FILE_PATH }} && \
           echo S3_ACCESS_KEY_ID=${{ secrets.S3_ACCESS_KEY_ID }}  >> ${{ env.ENV_FILE_PATH }} && \
           echo S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}  >> ${{ env.ENV_FILE_PATH }} && \
+          echo ENV_TYPE=testing  >> ${{ env.ENV_FILE_PATH }} && \
+          echo LOG_LEVEL=debug  >> ${{ env.ENV_FILE_PATH }} && \
           chmod 600 ${{ env.ENV_FILE_PATH }} && \
           ls -la ${{ env.DEPLOY_DIRECTORY }}"
 
