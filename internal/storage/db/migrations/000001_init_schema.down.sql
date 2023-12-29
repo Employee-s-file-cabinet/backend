@@ -1,3 +1,5 @@
+BEGIN;
+
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS organization_structure CASCADE;
 DROP TABLE IF EXISTS positions CASCADE;
@@ -7,7 +9,6 @@ DROP TABLE IF EXISTS benefit_uses CASCADE;
 DROP TABLE IF EXISTS benefits_benefit_uses;
 DROP TABLE IF EXISTS roles CASCADE;
 DROP TABLE IF EXISTS authorizations;
-DROP TABLE IF EXISTS policies;
 DROP TABLE IF EXISTS educations;
 DROP TABLE IF EXISTS trainings;
 DROP TABLE IF EXISTS passports;
@@ -23,3 +24,5 @@ DROP TYPE IF EXISTS gender;
 DROP TYPE IF EXISTS contract_type;
 
 DROP FUNCTION IF EXISTS update_updated_at();
+
+COMMIT;
