@@ -17,13 +17,15 @@ import (
 func (h *handler) DownloadPhoto(w http.ResponseWriter, r *http.Request, userID uint64) {
 	ctx := r.Context()
 
-	f, closeFn, err := h.userService.DownloadPhoto(ctx, userID)
+	f, closeFn, err := h.userService.DownloadPhoto(ctx, userID, r.Header.Get("If-None-Match"))
 	if err != nil {
 		switch {
 		case errors.Is(err, uservice.ErrUserNotFound):
 			serr.ErrorMessage(w, r, http.StatusNotFound, uservice.ErrUserNotFound.Error(), nil)
-		case errors.Is(err, uservice.ErrPhotoNotFound):
-			serr.ErrorMessage(w, r, http.StatusNotFound, uservice.ErrPhotoNotFound.Error(), nil)
+		case errors.Is(err, uservice.ErrPhotoFileNotFound):
+			serr.ErrorMessage(w, r, http.StatusNotFound, uservice.ErrPhotoFileNotFound.Error(), nil)
+		case errors.Is(err, uservice.ErrPhotoFileNotModified):
+			w.WriteHeader(http.StatusNotModified)
 		default:
 			serr.ReportError(r, err, false)
 			serr.ErrorMessage(w, r,
@@ -36,6 +38,9 @@ func (h *handler) DownloadPhoto(w http.ResponseWriter, r *http.Request, userID u
 	defer closeFn()
 
 	w.Header().Set("Content-Type", f.ContentType)
+	if f.Hash != "" {
+		w.Header().Set("ETag", f.Hash)
+	}
 	if _, err := io.Copy(w, f.Reader); err != nil {
 		serr.ReportError(r, err, false)
 		serr.ErrorMessage(w, r,

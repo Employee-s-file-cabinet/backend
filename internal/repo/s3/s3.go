@@ -13,6 +13,7 @@ type File struct {
 	Name        string
 	ContentType string
 	Size        int64
+	ETag        string
 	Reader      io.Reader
 }
 

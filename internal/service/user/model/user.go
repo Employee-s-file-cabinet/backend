@@ -36,5 +36,6 @@ const (
 type File struct {
 	ContentType string
 	Size        int64
+	Hash        string
 	Reader      io.Reader
 }
