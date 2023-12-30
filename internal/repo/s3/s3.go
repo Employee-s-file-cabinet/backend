@@ -9,12 +9,12 @@ import (
 )
 
 type File struct {
+	io.Reader
 	Prefix      string
 	Name        string
 	ContentType string
 	Size        int64
 	ETag        string
-	Reader      io.Reader
 }
 
 func NewClient(cfg Config) (*minio.Client, error) {

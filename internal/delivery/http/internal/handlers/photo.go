@@ -41,7 +41,7 @@ func (h *handler) DownloadPhoto(w http.ResponseWriter, r *http.Request, userID u
 	if f.Hash != "" {
 		w.Header().Set("ETag", f.Hash)
 	}
-	if _, err := io.Copy(w, f.Reader); err != nil {
+	if _, err := io.Copy(w, f); err != nil {
 		serr.ReportError(r, err, false)
 		serr.ErrorMessage(w, r,
 			http.StatusInternalServerError,
