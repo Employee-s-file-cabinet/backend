@@ -56,6 +56,7 @@ func (h *handler) Login(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
 		Expires:  h.authService.Expires(),
+		Domain:   "",
 	}
 	http.SetCookie(w, cookie)
 	w.WriteHeader(http.StatusOK)
