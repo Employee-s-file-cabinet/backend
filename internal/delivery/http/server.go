@@ -8,6 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	_ "github.com/jackc/pgx/stdlib" // use as driver for sqlx
+
+	"github.com/casbin/casbin/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/jub0bs/fcors"
 
@@ -16,6 +19,7 @@ import (
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/api"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/handlers"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/middleware"
+	"github.com/Employee-s-file-cabinet/backend/internal/service/auth/repo/sqlxadapter"
 )
 
 const (
@@ -54,9 +58,12 @@ func New(cfg Config, envType env.Type,
 	mux := chi.NewRouter()
 	mux.NotFound(srvErrors.NotFound)
 	mux.MethodNotAllowed(srvErrors.MethodNotAllowed)
+
+	// Add middlewares
 	mux.Use(middleware.LogAccess)
 	mux.Use(middleware.RecoverPanic)
 
+	// CORS middleware
 	switch envType {
 	case env.Development, env.Testing:
 		cors, err := fcors.AllowAccessWithCredentials(
@@ -72,6 +79,25 @@ func New(cfg Config, envType env.Type,
 		mux.Use(cors)
 	default:
 	}
+
+	// Authorization middleware
+	opts := &sqlxadapter.AdapterOptions{
+		DriverName:     "pgx",
+		DataSourceName: authService.DataSourceName(),
+		TableName:      "policies",
+	}
+	a := sqlxadapter.NewAdapterFromOptions(opts)
+	// Casbin v2 may return an error
+	e, err := casbin.NewEnforcer("policy_models/rest.conf", a)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create authorization middleware: %w", err)
+	}
+
+	authz := middleware.Authorizer{
+		TokenManager: authService,
+		Enforcer:     e,
+	}
+	mux.Use(authz.AuthorizeMiddleware)
 
 	srv.Handler = api.HandlerWithOptions(handler, api.ChiServerOptions{
 		BaseURL:    api.BaseURL,

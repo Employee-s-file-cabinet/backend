@@ -10,6 +10,7 @@ import (
 
 type authRepository interface {
 	Get(ctx context.Context, login string) (model.AuthnDAO, error)
+	ConnString() string
 }
 
 // passwordVerification абстракция хеширования и проверки паролей.
