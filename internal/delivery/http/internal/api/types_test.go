@@ -44,7 +44,7 @@ func TestEducation_Validate(t *testing.T) {
 		"date_to": "2015-01-01",
 		"date_from": "2011-01-01",
 		"issued_institution": "ФГБОУ ВО «Астраханский государственный университет им. В. Н. Татищева»",
-		"program": "Связи с общественностью"
+		"program": ""
 	  }`
 	var ed2 Education
 	wrongJSONTEstHelper(context.TODO(), t, edJSON2, &ed2)
