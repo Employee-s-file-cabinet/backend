@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/henvic/pgq"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/Employee-s-file-cabinet/backend/internal/service/user/model"
@@ -20,7 +19,8 @@ func (s *storage) ListPassports(ctx context.Context, userID uint64) ([]model.Pas
 	id, number, type, issued_date, issued_by, 
 	(SELECT COUNT(*) FROM visas WHERE visas.passport_id = passports.id) AS visas_count 
 	FROM passports
-	WHERE passports.user_id = $1`, userID)
+	WHERE passports.user_id = @user_id`,
+		pgx.NamedArgs{"user_id": userID})
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -42,9 +42,10 @@ func (s *storage) GetPassport(ctx context.Context, passportID uint64) (*model.Pa
 
 	rows, err := s.DB.Query(ctx,
 		`SELECT id, number, type, issued_date, issued_by,
-		(SELECT COUNT(*) FROM visas WHERE visas.passport_id = $1) AS visas_count 
+		(SELECT COUNT(*) FROM visas WHERE visas.passport_id = passports.id) AS visas_count 
 		FROM passports
-		WHERE id = $1`, passportID)
+		WHERE id = @passport_id`,
+		pgx.NamedArgs{"passport_id": passportID})
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -62,16 +63,19 @@ func (s *storage) AddPassport(ctx context.Context, userID uint64, mp model.Passp
 
 	p := convertModelPassportToPassport(mp)
 
-	qb := pgq.Insert("passports").
-		Columns("user_id", "number", "type", "issued_date", "issued_by").
-		Values(userID, p.Number, p.Type, p.IssuedDate, p.IssuedBy).
-		Returning("id")
-	query, args, err := qb.SQL()
-	if err != nil {
-		return 0, fmt.Errorf("%s: %w", op, err)
-	}
+	row := s.DB.QueryRow(ctx, `INSERT INTO passports
+		("user_id", "number", "type", "issued_date", "issued_by")
+		VALUES (@user_id, @number, @type, @issued_date, @issued_by)
+		RETURNING "id"`,
+		pgx.NamedArgs{
+			"user_id":     userID,
+			"number":      p.Number,
+			"type":        p.Type,
+			"issued_date": p.IssuedDate,
+			"issued_by":   p.IssuedBy,
+		})
 
-	if err := s.DB.QueryRow(ctx, query, args...).Scan(&p.ID); err != nil {
+	if err := row.Scan(&p.ID); err != nil {
 		if strings.Contains(err.Error(), "23") && // Integrity Constraint Violation
 			strings.Contains(err.Error(), "user_id") {
 			return 0, fmt.Errorf("%s: the user does not exist: %w", op, repoerr.ErrRecordNotFound)
