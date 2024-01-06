@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/casbin/casbin/v2"
+
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/api"
 	"github.com/Employee-s-file-cabinet/backend/internal/service/auth/model/token"
 	umodel "github.com/Employee-s-file-cabinet/backend/internal/service/user/model"
@@ -31,7 +33,7 @@ type AuthService interface {
 	Login(ctx context.Context, login, password string) (string, error)
 	Expires() time.Time
 	Payload(token string) (*token.Payload, error)
-	DataSourceName() string
+	PolicyEnforcer() (*casbin.Enforcer, error)
 }
 
 type handler struct {

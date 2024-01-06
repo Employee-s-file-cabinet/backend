@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"regexp"
 	"strings"
 
 	srvErrors "github.com/Employee-s-file-cabinet/backend/internal/delivery/http/errors"
@@ -14,6 +15,7 @@ import (
 
 const (
 	cookieName = "ecabinet-token"
+	pattern    = `^/login|^/health`
 )
 
 type TokenManager interface {
@@ -29,10 +31,11 @@ func (a *Authorizer) AuthorizeMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := strings.TrimPrefix(r.URL.Path, api.BaseURL)
 
-		if path != "/login" {
+		matched, _ := regexp.MatchString(pattern, path)
+
+		if !matched {
 			cookie, err := r.Cookie(cookieName)
 			if err != nil {
-				srvErrors.ReportError(r, err, false)
 				srvErrors.ErrorMessage(w, r,
 					http.StatusForbidden,
 					http.ErrNoCookie.Error(), nil)
@@ -43,7 +46,6 @@ func (a *Authorizer) AuthorizeMiddleware(next http.Handler) http.Handler {
 
 			payload, err := a.TokenManager.Payload(ecabinetToken)
 			if err != nil {
-				srvErrors.ReportError(r, err, false)
 				srvErrors.ErrorMessage(w, r,
 					http.StatusUnauthorized,
 					auth.ErrTokenIsInvalid.Error(), nil)
@@ -56,7 +58,6 @@ func (a *Authorizer) AuthorizeMiddleware(next http.Handler) http.Handler {
 			result, _ := a.Enforcer.Enforce(user, path, method)
 
 			if !result {
-				srvErrors.ReportError(r, auth.ErrUserNotAllowed, false)
 				srvErrors.ErrorMessage(w, r,
 					http.StatusUnauthorized,
 					auth.ErrUserNotAllowed.Error(), nil)
