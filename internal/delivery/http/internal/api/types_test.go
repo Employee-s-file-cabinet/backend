@@ -41,10 +41,10 @@ func TestEducation_Validate(t *testing.T) {
 
 	edJSON2 := `{
 		"id": 578,
+		"number": "1030180354933",
 		"date_to": "2015-01-01",
 		"date_from": "2011-01-01",
-		"issued_institution": "ФГБОУ ВО «Астраханский государственный университет им. В. Н. Татищева»",
-		"program": ""
+		"program": "Связи с общественностью"
 	  }`
 	var ed2 Education
 	wrongJSONTEstHelper(context.TODO(), t, edJSON2, &ed2)
