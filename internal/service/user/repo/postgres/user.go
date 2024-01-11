@@ -180,7 +180,8 @@ func (s *storage) List(ctx context.Context, pms model.ListUsersParams) ([]model.
 		Join("departments ON users.department_id = departments.id").
 		Join("positions ON users.position_id = positions.id")
 	if pms.Query != "" {
-		sb = sb.Where(pgq.ILike{"lastname": pms.Query + "%"})
+		q := "%" + pms.Query + "%"
+		sb = sb.Where(`users.lastname ILIKE ? OR departments.title ILIKE ?`, q, q)
 	}
 	// nolint:exhaustive
 	switch pms.SortBy {
