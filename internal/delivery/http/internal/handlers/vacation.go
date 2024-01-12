@@ -96,8 +96,8 @@ func (h *handler) GetVacation(w http.ResponseWriter, r *http.Request, userID uin
 
 	v, err := h.userService.GetVacation(ctx, userID, vacationID)
 	if err != nil {
-		if errors.Is(err, user.ErrTrainingNotFound) {
-			serr.ErrorMessage(w, r, http.StatusNotFound, user.ErrTrainingNotFound.Error(), nil)
+		if errors.Is(err, user.ErrVacationNotFound) {
+			serr.ErrorMessage(w, r, http.StatusNotFound, user.ErrVacationNotFound.Error(), nil)
 			return
 		}
 		serr.ReportError(r, err, false)

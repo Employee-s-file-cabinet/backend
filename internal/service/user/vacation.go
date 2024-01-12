@@ -15,7 +15,7 @@ func (s *service) GetVacation(ctx context.Context, userID, vacationID uint64) (*
 	v, err := s.userRepository.GetVacation(ctx, userID, vacationID)
 	if err != nil {
 		if errors.Is(err, repoerr.ErrRecordNotFound) {
-			return nil, fmt.Errorf("%s: %w", op, ErrTrainingNotFound)
+			return nil, fmt.Errorf("%s: %w", op, ErrVacationNotFound)
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
