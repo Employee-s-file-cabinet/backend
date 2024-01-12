@@ -6,14 +6,13 @@ import (
 	"strconv"
 
 	"github.com/muonsoft/validation/validator"
-	"github.com/oapi-codegen/runtime/types"
 
 	serr "github.com/Employee-s-file-cabinet/backend/internal/delivery/http/errors"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/api"
+	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/convert"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/request"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/response"
 	"github.com/Employee-s-file-cabinet/backend/internal/service/user"
-	"github.com/Employee-s-file-cabinet/backend/internal/service/user/model"
 )
 
 // @Produce application/json
@@ -36,7 +35,7 @@ func (h *handler) ListVacations(w http.ResponseWriter, r *http.Request, userID u
 		return
 	}
 
-	if err := response.JSON(w, http.StatusOK, convertVacationsToAPIVacations(vacations)); err != nil {
+	if err := response.JSON(w, http.StatusOK, convert.ToAPIVacations(vacations)); err != nil {
 		serr.ReportError(r, err, false)
 		serr.ErrorMessage(w, r,
 			http.StatusInternalServerError,
@@ -64,7 +63,7 @@ func (h *handler) AddVacation(w http.ResponseWriter, r *http.Request, userID uin
 		return
 	}
 
-	id, err := h.userService.AddVacation(ctx, userID, convertAPIVacationToVacation(v))
+	id, err := h.userService.AddVacation(ctx, userID, convert.ToModelVacation(v))
 	if err != nil {
 		if errors.Is(err, user.ErrUserNotFound) {
 			serr.ErrorMessage(w, r, http.StatusConflict, user.ErrUserNotFound.Error(), nil)
@@ -108,7 +107,7 @@ func (h *handler) GetVacation(w http.ResponseWriter, r *http.Request, userID uin
 		return
 	}
 
-	if err := response.JSON(w, http.StatusOK, convertVacationToAPIVacation(v)); err != nil {
+	if err := response.JSON(w, http.StatusOK, convert.ToAPIVacation(v)); err != nil {
 		serr.ReportError(r, err, false)
 		serr.ErrorMessage(w, r,
 			http.StatusInternalServerError,
@@ -133,27 +132,4 @@ func (h *handler) PatchVacation(w http.ResponseWriter, r *http.Request, userID u
 	}
 
 	w.WriteHeader(http.StatusNotImplemented)
-}
-
-func convertVacationsToAPIVacations(vcs []model.Vacation) []api.Vacation {
-	res := make([]api.Vacation, len(vcs))
-	for i := 0; i < len(vcs); i++ {
-		res[i] = convertVacationToAPIVacation(&vcs[i])
-	}
-	return res
-}
-
-func convertVacationToAPIVacation(mv *model.Vacation) api.Vacation {
-	return api.Vacation{
-		ID:       &mv.ID,
-		DateFrom: types.Date{Time: mv.DateBegin},
-		DateTo:   types.Date{Time: mv.DateEnd},
-	}
-}
-
-func convertAPIVacationToVacation(tr api.Vacation) model.Vacation {
-	return model.Vacation{
-		DateBegin: tr.DateFrom.Time,
-		DateEnd:   tr.DateTo.Time,
-	}
 }
