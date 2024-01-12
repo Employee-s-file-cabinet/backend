@@ -13,6 +13,7 @@ import (
 type UserService interface {
 	List(ctx context.Context, params umodel.ListUsersParams) (users []umodel.User, totalCount int, err error)
 	Get(ctx context.Context, userID uint64) (*umodel.User, error)
+	GetExpanded(ctx context.Context, userID uint64) (*umodel.ExpandedUser, error)
 	DownloadPhoto(ctx context.Context, userID uint64, hash string) (f umodel.File, closeFn func() error, err error)
 	UploadPhoto(ctx context.Context, userID uint64, f umodel.File) error
 
@@ -42,4 +43,10 @@ type AuthService interface {
 	Expires() time.Time
 	Payload(token string) (*token.Payload, error)
 	PolicyEnforcer() (*casbin.Enforcer, error)
+}
+
+type PasswordRecoveryService interface {
+	InitChangePassword(ctx context.Context, login string) error
+	ChangePassword(ctx context.Context, key, newPassword string) error
+	Check(ctx context.Context, key string) error
 }
