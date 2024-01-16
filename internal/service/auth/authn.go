@@ -14,10 +14,10 @@ func (s *service) Login(ctx context.Context, login, password string) (string, st
 	const op = "auth service: login"
 
 	authnData, err := s.authRepository.Get(ctx, login)
-	if errors.Is(err, repoerr.ErrRecordNotFound) {
-		return "", "", errUnauthenticated
-	}
 	if err != nil {
+		if errors.Is(err, repoerr.ErrRecordNotFound) {
+			return "", "", errUnauthenticated
+		}
 		return "", "", fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -36,6 +36,10 @@ func (s *service) Login(ctx context.Context, login, password string) (string, st
 	}
 
 	return t, sign, nil
+}
+
+func (s *service) AddUser(userID uint64) error {
+	panic("not implemented")
 }
 
 func (s *service) Expires() time.Time {

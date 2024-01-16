@@ -85,7 +85,8 @@ CREATE TABLE IF NOT EXISTS "roles"
 CREATE TABLE IF NOT EXISTS "authorizations"
 (
     "id"            bigserial PRIMARY KEY,
-    "user_id"       bigint  NOT NULL,
+    "user_id"       bigint  NOT NULL, 
+    // TODO: UNIQUE
     "role_id"       bigint  NOT NULL,
     "password_hash" varchar NOT NULL,
     "created_at"    timestamptz DEFAULT (now()),
