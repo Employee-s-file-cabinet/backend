@@ -5,14 +5,15 @@ import (
 )
 
 type ShortUserInfo struct {
-	ID           uint64
-	Department   string
-	Email        string
-	FirstName    string
-	LastName     string
-	MiddleName   string
-	PhoneNumbers map[string]string
-	Position     string
+	ID                uint64
+	Department        string
+	Email             string
+	FirstName         string
+	LastName          string
+	MiddleName        string
+	MobilePhoneNumber string
+	OfficePhoneNumber string
+	Position          string
 }
 
 type User struct {
@@ -41,9 +42,12 @@ const (
 // ExpandedUser represents summary information about the user.
 type ExpandedUser struct {
 	User
-	Educations []Education
-	Trainings  []Training
-	Passports  []ExpandedPassport
+	Educations        []Education
+	Trainings         []Training
+	Passports         []Passport
+	ExternalPassports []Passport
+	Visas             []Visa
+	ForeignersVisas   []Visa
 	// Contracts []Contract
 	Vacations []Vacation
 }

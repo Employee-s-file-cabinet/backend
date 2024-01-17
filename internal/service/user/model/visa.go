@@ -5,16 +5,16 @@ import "time"
 type Visa struct {
 	ID            uint64
 	Number        string
+	Type          visaType
+	Category      string
 	IssuedState   string
-	ValidTo       time.Time
-	ValidFrom     time.Time
-	NumberEntries VisaNumberEntries
+	IssuedDate    time.Time
+	ExpiredAtDate time.Time
 }
 
-type VisaNumberEntries string
+type visaType string
 
 const (
-	VisaNumberEntriesMult VisaNumberEntries = "mult"
-	VisaNumberEntriesN1   VisaNumberEntries = "1"
-	VisaNumberEntriesN2   VisaNumberEntries = "2"
+	VisaTypeExternal   visaType = "external"
+	VisaTypeForeigners visaType = "foreigners"
 )

@@ -1,23 +1,21 @@
 package postgresql
 
 import (
-	"database/sql/driver"
-	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/Employee-s-file-cabinet/backend/internal/service/user/model"
 )
 
 type shortUserInfo struct {
-	ID           uint64       `db:"id"`
-	LastName     string       `db:"lastname"`
-	FirstName    string       `db:"firstname"`
-	MiddleName   string       `db:"middlename"`
-	Position     string       `db:"position"`
-	Department   string       `db:"department"`
-	Email        string       `db:"work_email"`
-	PhoneNumbers phoneNumbers `db:"phone_numbers"`
+	ID                uint64 `db:"id"`
+	Department        string `db:"department"`
+	Email             string `db:"work_email"`
+	FirstName         string `db:"firstname"`
+	LastName          string `db:"lastname"`
+	MiddleName        string `db:"middlename"`
+	MobilePhoneNumber string `db:"mobile_phone_number"`
+	OfficePhoneNumber string `db:"office_phone_number"`
+	Position          string `db:"position"`
 }
 
 type user struct {
@@ -42,33 +40,8 @@ const (
 	genderMale   gender = "Мужской"
 )
 
-type phoneNumbers map[string]string
-
-func (ph *phoneNumbers) Scan(val interface{}) error {
-	switch v := val.(type) {
-	case []byte:
-		return json.Unmarshal(v, &ph)
-	case string:
-		return json.Unmarshal([]byte(v), &ph)
-	default:
-		return fmt.Errorf("unsupported type: %T", v)
-	}
-}
-func (ph *phoneNumbers) Value() (driver.Value, error) {
-	return json.Marshal(ph)
-}
-
 func convertShortUserInfoToModelShortUserInfo(info shortUserInfo) model.ShortUserInfo {
-	return model.ShortUserInfo{
-		ID:           info.ID,
-		Department:   info.Department,
-		Email:        info.Email,
-		FirstName:    info.FirstName,
-		LastName:     info.LastName,
-		MiddleName:   info.MiddleName,
-		PhoneNumbers: info.PhoneNumbers,
-		Position:     info.Position,
-	}
+	return model.ShortUserInfo(info)
 }
 
 func convertUserToModelUser(user *user) model.User {
@@ -104,16 +77,7 @@ func convertModelUserToUser(u *model.User) user {
 	}
 
 	return user{
-		shortUserInfo: shortUserInfo{
-			ID:           u.ID,
-			LastName:     u.LastName,
-			FirstName:    u.FirstName,
-			MiddleName:   u.MiddleName,
-			Position:     u.Position,
-			Department:   u.Department,
-			Email:        u.Email,
-			PhoneNumbers: u.PhoneNumbers,
-		},
+		shortUserInfo:       shortUserInfo(u.ShortUserInfo),
 		Gender:              gr,
 		DateOfBirth:         u.DateOfBirth,
 		PlaceOfBirth:        u.PlaceOfBirth,
@@ -165,7 +129,6 @@ type passport struct {
 	IssuedDate time.Time    `db:"issued_date"`
 	Number     string       `db:"number"`
 	Type       passportType `db:"type"`
-	VisasCount uint         `db:"visas_count"`
 }
 
 type passportType string
@@ -193,7 +156,6 @@ func convertPassportToModelPassport(p passport) model.Passport {
 		IssuedDate: p.IssuedDate,
 		Number:     p.Number,
 		Type:       pt,
-		VisasCount: p.VisasCount,
 	}
 }
 
@@ -219,13 +181,20 @@ func convertModelPassportToPassport(mp model.Passport) passport {
 
 type visa struct {
 	ID            uint64                  `db:"id"`
-	PassportID    uint64                  `db:"passport_id"`
 	Number        string                  `db:"number"`
+	Type          visaType                `db:"type"`
 	IssuedState   string                  `db:"issued_state"`
 	ValidTo       time.Time               `db:"valid_to"`
 	ValidFrom     time.Time               `db:"valid_from"`
 	NumberEntries model.VisaNumberEntries `db:"number_entries"`
 }
+
+type visaType string
+
+const (
+	visaTypeExternal   passportType = "Заграничная"
+	visaTypeForeigners passportType = "Иностранного гражданина"
+)
 
 func convertVisaToModelVisa(v visa) model.Visa {
 	return model.Visa{

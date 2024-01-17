@@ -58,7 +58,11 @@ func (b AddUserJSONRequestBody) Validate(ctx context.Context, validator *vld.Val
 		vld.StringProperty("email", string(b.Email),
 			it.IsNotBlank(),
 			it.HasLengthBetween(5, 50)),
-		vld.ValidMapProperty[PhoneNumber]("phone_numbers", b.PhoneNumbers),
+		vld.StringProperty("mobile_phone_number", b.MobilePhoneNumber,
+			it.IsNotBlank(),
+			it.HasLengthBetween(7, 15)),
+		vld.StringProperty("office_phone_number", b.OfficePhoneNumber,
+			it.HasMaxLength(15)),
 		vld.StringProperty("grade", b.Grade,
 			it.IsNotBlank(),
 			it.HasExactLength(1)),
@@ -122,7 +126,15 @@ func (b PatchUserJSONRequestBody) Validate(ctx context.Context, validator *vld.V
 			Then(vld.NilString((*string)(b.Email),
 				it.IsNotBlank(),
 				it.HasLengthBetween(5, 50))),
-		vld.ValidMapProperty[PhoneNumber]("phone_numbers", b.PhoneNumbers),
+		vld.When(b.MobilePhoneNumber != nil).
+			At(vld.PropertyName("mobile_phone_number")).
+			Then(vld.NilString(b.MobilePhoneNumber,
+				it.IsNotBlank(),
+				it.HasLengthBetween(7, 15))),
+		vld.When(b.OfficePhoneNumber != nil).
+			At(vld.PropertyName("office_phone_number")).
+			Then(vld.NilString(b.OfficePhoneNumber,
+				it.HasMaxLength(15))),
 		vld.When(b.Grade != nil).
 			At(vld.PropertyName("grade")).
 			Then(vld.NilString(b.Grade,
@@ -195,8 +207,11 @@ func (b PutUserJSONRequestBody) Validate(ctx context.Context, validator *vld.Val
 		vld.StringProperty("email", string(b.Email),
 			it.IsNotBlank(),
 			it.HasLengthBetween(5, 50)),
-		vld.ValidMapProperty[PhoneNumber]("phone_numbers", b.PhoneNumbers),
-		vld.StringProperty("grade", b.Grade,
+		vld.StringProperty("mobile_phone_number", b.MobilePhoneNumber,
+			it.IsNotBlank(),
+			it.HasLengthBetween(7, 15)),
+		vld.StringProperty("office_phone_number", b.OfficePhoneNumber,
+			it.HasMaxLength(15)), vld.StringProperty("grade", b.Grade,
 			it.IsNotBlank(),
 			it.HasExactLength(1)),
 		vld.When(b.WorkingModel != nil).
@@ -540,15 +555,6 @@ func (m Military) Validate(ctx context.Context, validator *vld.Validator) error 
 		vld.StringProperty("speciality", m.Speciality,
 			it.IsNotBlank(),
 			it.HasLengthBetween(6, 7)),
-	)
-}
-
-func (pn PhoneNumber) Validate(ctx context.Context, validator *vld.Validator) error {
-	return validator.Validate(
-		ctx,
-		vld.StringProperty("phone_number", string(pn),
-			it.IsNotBlank(),
-			it.HasLengthBetween(2, 15)),
 	)
 }
 

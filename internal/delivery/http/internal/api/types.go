@@ -128,7 +128,8 @@ type AddUserRequest struct {
 	MiddleName          string              `json:"middle_name"`
 	Military            *Military           `json:"military,omitempty"`
 	Nationality         string              `json:"nationality"`
-	PhoneNumbers        PhoneNumbers        `json:"phone_numbers"`
+	MobilePhoneNumber   string        `json:"mobile_phone_number"`
+	OfficePhoneNumber        string        `json:"office_phone_number"`
 	PlaceOfBirth        string              `json:"place_of_birth"`
 	PositionID          uint64              `json:"position_id"`
 	RegistrationAddress string              `json:"registration_address"`
@@ -230,7 +231,8 @@ type GetExpandedUserResponse struct {
 	GetUserResponse
 	Contracts  []Contract         `json:"contracts"`
 	Educations []Education        `json:"educations"`
-	Passports  []ExpandedPassport `json:"passports"`
+	Passports  []Passport `json:"external_passports"`
+	ExternalPassports  []Passport `json:"external_passports"`
 	Trainings  []Training         `json:"trainings"`
 	Vacations  []Vacation         `json:"vacations"`
 }
@@ -258,7 +260,8 @@ type GetUserResponse struct {
 	Military               *Military              `json:"military,omitempty"`
 	Nationality            string                 `json:"nationality"`
 	PersonalDataProcessing PersonalDataProcessing `json:"personal_data_processing"`
-	PhoneNumbers           PhoneNumbers           `json:"phone_numbers"`
+	MobilePhoneNumber           string           `json:"mobile_phone_number"`
+	OfficePhoneNumber           string           `json:"office_phone_number"`
 	PlaceOfBirth           string                 `json:"place_of_birth"`
 	PositionID             uint64                 `json:"position_id"`
 	PositionTrack          PositionTrack          `json:"position_track"`
@@ -310,7 +313,8 @@ type ListUsersItem struct {
 	ID           uint64              `json:"id"`
 	LastName     string              `json:"last_name"`
 	MiddleName   string              `json:"middle_name"`
-	PhoneNumbers PhoneNumbers        `json:"phone_numbers"`
+	MobilePhoneNumber           string           `json:"mobile_phone_number"`
+	OfficePhoneNumber           string           `json:"office_phone_number"`
 	Position     string              `json:"position"`
 }
 
@@ -421,7 +425,8 @@ type PatchUserRequest struct {
 	MiddleName          *string              `json:"middle_name,omitempty"`
 	Military            *Military            `json:"military,omitempty"`
 	Nationality         *string              `json:"nationality,omitempty"`
-	PhoneNumbers        PhoneNumbers         `json:"phone_numbers,omitempty"`
+	MobilePhoneNumber           *string           `json:"mobile_phone_number,omitempty"`
+	OfficePhoneNumber           *string           `json:"office_phone_number,omitempty"`
 	PlaceOfBirth        *string              `json:"place_of_birth,omitempty"`
 	PositionID          *uint64              `json:"position_id,omitempty"`
 	PositionTrack       PositionTrack        `json:"position_track,omitempty"`
@@ -451,11 +456,6 @@ type PatchVisaRequest struct {
 type PersonalDataProcessing struct {
 	HasScan bool `json:"has_scan"`
 }
-
-type PhoneNumber string
-
-// PhoneNumbers defines model for PhoneNumbers.
-type PhoneNumbers map[string]PhoneNumber
 
 // PositionTrack defines model for PositionTrack.
 type PositionTrack = []PositionTrackItem
@@ -523,7 +523,8 @@ type PutUserRequest struct {
 	MiddleName          string              `json:"middle_name"`
 	Military            *Military           `json:"military,omitempty"`
 	Nationality         string              `json:"nationality"`
-	PhoneNumbers        PhoneNumbers        `json:"phone_numbers"`
+	MobilePhoneNumber           string           `json:"mobile_phone_number"`
+	OfficePhoneNumber           string           `json:"office_phone_number"`
 	PlaceOfBirth        string              `json:"place_of_birth"`
 	PositionID          uint64              `json:"position_id"`
 	PositionTrack       PositionTrack       `json:"position_track"`

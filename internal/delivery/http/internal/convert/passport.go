@@ -48,7 +48,6 @@ func ToAPIGetPassportResponse(mp *model.Passport) api.GetPassportResponse {
 		IssuedBy:   mp.IssuedBy,
 		IssuedDate: types.Date{Time: mp.IssuedDate},
 		Number:     mp.Number,
-		VisasCount: mp.VisasCount,
 	}
 	switch mp.Type {
 	case model.PassportTypeInternal:
@@ -75,7 +74,6 @@ func toAPIPassport(mp model.Passport) api.Passport {
 		IssuedBy:   mp.IssuedBy,
 		IssuedDate: types.Date{Time: mp.IssuedDate},
 		Number:     mp.Number,
-		VisasCount: mp.VisasCount,
 	}
 	switch mp.Type {
 	case model.PassportTypeInternal:
@@ -88,17 +86,10 @@ func toAPIPassport(mp model.Passport) api.Passport {
 	return resp
 }
 
-func ToAPIExpandedPassports(psps []model.ExpandedPassport) []api.ExpandedPassport {
-	res := make([]api.ExpandedPassport, len(psps))
+func ToAPIPassports(psps []model.Passport) []api.Passport {
+	res := make([]api.Passport, len(psps))
 	for i := 0; i < len(psps); i++ {
-		res[i] = toAPIExpandedPassport(psps[i])
+		res[i] = toAPIPassport(psps[i])
 	}
 	return res
-}
-
-func toAPIExpandedPassport(mp model.ExpandedPassport) api.ExpandedPassport {
-	return api.ExpandedPassport{
-		Passport: toAPIPassport(mp.Passport),
-		Visas:    toAPIVisas(mp.Visas),
-	}
 }

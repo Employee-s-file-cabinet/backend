@@ -33,7 +33,7 @@ func (s *storage) Exist(ctx context.Context, userID uint64) (bool, error) {
 
 const getUserQuery = `SELECT 
 users.id AS id, firstname, middlename, lastname, gender,
-date_of_birth, place_of_birth, grade, phone_numbers,
+date_of_birth, place_of_birth, grade, mobile_phone_number, office_phone_number,
 work_email, registration_address,residential_address, nationality,
 insurance_number, taxpayer_number, users.department_id AS department_id, position_id,
 departments.title AS department, positions.title AS position
@@ -74,14 +74,37 @@ func (s *storage) GetExpandedUser(ctx context.Context, userID uint64) (*model.Ex
 	batch.Queue(`SELECT 
 	id, number, type, issued_date, issued_by	 
 	FROM passports
-	WHERE passports.user_id = @user_id`,
-		pgx.NamedArgs{"user_id": userID})
+	WHERE user_id = @user_id AND type = @passport_type`,
+		pgx.NamedArgs{
+			"user_id":       userID,
+			"passport_type": string(passportTypeExternal),
+		})
 	batch.Queue(`SELECT 
-	id, number, passport_id, issued_state, 
+	id, number, type, issued_date, issued_by	 
+	FROM passports
+	WHERE user_id = @user_id AND type = @passport_type`,
+		pgx.NamedArgs{
+			"user_id":       userID,
+			"passport_type": string(passportTypeInternal),
+		})
+	batch.Queue(`SELECT 
+	id, number, issued_state, 
 	valid_to, valid_from, number_entries 
 	FROM visas
-	WHERE visas.user_id = @user_id`,
-		pgx.NamedArgs{"user_id": userID})
+	WHERE visas.user_id = @user_id AND type = @visa_type`,
+		pgx.NamedArgs{
+			"user_id":   userID,
+			"visa_type": string(visaTypeExternal),
+		})
+	batch.Queue(`SELECT 
+	id, number, issued_state, 
+	valid_to, valid_from, number_entries 
+	FROM visas
+	WHERE visas.user_id = @user_id AND type = @visa_type`,
+		pgx.NamedArgs{
+			"user_id":   userID,
+			"visa_type": string(visaTypeForeigners),
+		})
 	batch.Queue(listVacationsQuery, pgx.NamedArgs{"user_id": userID})
 	br := s.DB.SendBatch(ctx, batch)
 	defer br.Close()
@@ -132,7 +155,7 @@ func (s *storage) GetExpandedUser(ctx context.Context, userID uint64) (*model.Ex
 		expUser.Trainings[i] = convertTrainingToModelTraining(tr)
 	}
 
-	// get passports
+	// get external passports
 	rows, err = br.Query()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -141,12 +164,26 @@ func (s *storage) GetExpandedUser(ctx context.Context, userID uint64) (*model.Ex
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	expUser.Passports = make([]model.ExpandedPassport, len(psps))
+	expUser.ExternalPassports = make([]model.Passport, len(psps))
 	for i, psp := range psps {
-		expUser.Passports[i].Passport = convertPassportToModelPassport(psp)
+		expUser.ExternalPassports[i] = convertPassportToModelPassport(psp)
 	}
 
-	// get visas
+	// get internal passports
+	rows, err = br.Query()
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	psps, err = pgx.CollectRows[passport](rows, pgx.RowToStructByNameLax[passport])
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	expUser.InternalPassports = make([]model.Passport, len(psps))
+	for i, psp := range psps {
+		expUser.InternalPassports[i] = convertPassportToModelPassport(psp)
+	}
+
+	// get external visas
 	rows, err = br.Query()
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -155,13 +192,23 @@ func (s *storage) GetExpandedUser(ctx context.Context, userID uint64) (*model.Ex
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	for i := 0; i < len(expUser.Passports); i++ {
-		for j := 0; j < len(visas); j++ {
-			if visas[j].PassportID == expUser.Passports[i].ID {
-				expUser.Passports[i].Visas = append(expUser.Passports[i].Visas, convertVisaToModelVisa(visas[j]))
-				expUser.Passports[i].VisasCount++
-			}
-		}
+	expUser.ExternalVisas = make([]model.Visa, len(visas))
+	for i, v := range visas {
+		expUser.ExternalVisas[i] = convertVisaToModelVisa(v)
+	}
+
+	// get foreigners visas
+	rows, err = br.Query()
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	visas, err = pgx.CollectRows[visa](rows, pgx.RowToStructByNameLax[visa])
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	expUser.ForeignersVisas = make([]model.Visa, len(visas))
+	for i, v := range visas {
+		expUser.ForeignersVisas[i] = convertVisaToModelVisa(v)
 	}
 
 	// get vacations
@@ -186,7 +233,7 @@ func (s *storage) ListShortUserInfo(ctx context.Context, pms model.ListUsersPara
 
 	sb := pgq.
 		Select(`users.id AS id, lastname, firstname, middlename, 
-		phone_numbers, work_email, 
+		mobile_phone_number, office_phone_number, work_email, 
 		positions.title AS position, departments.title AS department, 
 		count(*) OVER() AS total_count`).
 		From("users").
@@ -240,14 +287,14 @@ func (s *storage) Add(ctx context.Context, mu model.User) (uint64, error) {
 		`INSERT INTO users 
 			(lastname, firstname, middlename, 
 			gender, date_of_birth, place_of_birth, 
-			grade, phone_numbers, work_email, 
+			grade, mobile_phone_number, office_phone_number, work_email, 
 			registration_address, residential_address, 
 			nationality, insurance_number, 
 			taxpayer_number, department_id, position_id)
 		VALUES
 			(@lastname, @firstname, @middlename, 
 			@gender, @date_of_birth, @place_of_birth, 
-			@grade, @phone_numbers, @email, 
+			@grade, @mobile_phone_number, @office_phone_number, @email, 
 			@registration_address, @residential_address, 
 			@nationality, @insurance_number, 
 			@taxpayer_number, @department_id, @position_id)
@@ -260,7 +307,8 @@ func (s *storage) Add(ctx context.Context, mu model.User) (uint64, error) {
 			"date_of_birth":        user.DateOfBirth,
 			"place_of_birth":       user.PlaceOfBirth,
 			"grade":                user.Grade,
-			"phone_numbers":        user.PhoneNumbers,
+			"mobile_phone_number":  user.MobilePhoneNumber,
+			"office_phone_number":  user.OfficePhoneNumber,
 			"email":                user.Email,
 			"registration_address": user.RegistrationAddress,
 			"residential_address":  user.ResidentialAddress,
@@ -294,7 +342,8 @@ func (s *storage) Update(ctx context.Context, mu model.User) error {
 	tag, err := s.DB.Exec(ctx, `UPDATE users
 	SET lastname=@lastname, firstname=@firstname, middlename=@middlename, 
 	gender=@gender, date_of_birth=@date_of_birth, place_of_birth=@place_of_birth, 
-	grade=@grade, phone_numbers=@phone_numbers, work_email=@email, 
+	grade=@grade, mobile_phone_number=@mobile_phone_number, 
+	office_phone_number=@office_phone_number, work_email=@email, 
 	registration_address=@registration_address, residential_address=@residential_address, 
 	nationality=@nationality, insurance_number=@insurance_number, 
 	taxpayer_number=@taxpayer_number, 
@@ -309,7 +358,8 @@ func (s *storage) Update(ctx context.Context, mu model.User) error {
 			"date_of_birth":        user.DateOfBirth,
 			"place_of_birth":       user.PlaceOfBirth,
 			"grade":                user.Grade,
-			"phone_numbers":        user.PhoneNumbers,
+			"mobile_phone_number":  user.MobilePhoneNumber,
+			"office_phone_number":  user.OfficePhoneNumber,
 			"email":                user.Email,
 			"registration_address": user.RegistrationAddress,
 			"residential_address":  user.ResidentialAddress,
