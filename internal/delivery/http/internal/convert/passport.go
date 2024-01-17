@@ -48,6 +48,7 @@ func ToAPIPassport(mp *model.Passport) api.Passport {
 		Number:     mp.Number,
 		Type:       pt,
 		VisasCount: mp.VisasCount,
+		HasScan:    mp.HasScan,
 	}
 }
 

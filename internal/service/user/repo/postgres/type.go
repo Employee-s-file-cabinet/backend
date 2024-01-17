@@ -120,6 +120,7 @@ type passport struct {
 	Number     string       `db:"number"`
 	Type       passportType `db:"type"`
 	VisasCount uint         `db:"visas_count"`
+	HasScan    bool         `db:"has_scan"`
 }
 
 type passportType string
@@ -148,6 +149,7 @@ func convertPassportToModelPassport(p passport) model.Passport {
 		Number:     p.Number,
 		Type:       pt,
 		VisasCount: p.VisasCount,
+		HasScan:    p.HasScan,
 	}
 }
 
