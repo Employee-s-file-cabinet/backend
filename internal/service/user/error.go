@@ -13,4 +13,6 @@ var (
 	ErrPhotoFileNotFound      = errors.New("photo file not found")
 	ErrPhotoFileNotModified   = errors.New("photo file not modified")
 	ErrPhotoFileSizeTooLarge  = errors.New("photo file size too large")
+	ErrScanFileNotFound       = errors.New("scan file not found")
+	ErrScanFileSizeTooLarge   = errors.New("scan file size too large")
 )

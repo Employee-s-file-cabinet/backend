@@ -3,7 +3,6 @@ package api
 
 import (
 	"context"
-	"time"
 
 	vld "github.com/muonsoft/validation"
 	"github.com/muonsoft/validation/it"
@@ -445,11 +444,12 @@ func (pt PositionTrackItem) Validate(ctx context.Context, validator *vld.Validat
 
 // Scan represents employee document scan.
 type Scan struct {
-	Description string    `json:"description,omitempty"`
-	DocumentID  *int      `json:"document_id,omitempty"`
-	ID          *uint64   `json:"id,omitempty"`
-	Type        ScanType  `json:"type"`
-	UploadAt    time.Time `json:"upload_at,omitempty"`
+	ID          *uint64  `json:"id"`
+	Type        ScanType `json:"type"`
+	DocumentID  *int     `json:"document_id,omitempty"`
+	Description string   `json:"description,omitempty"`
+	Url         string   `json:"url,omitempty"`
+	UploadAt    string   `json:"upload_at,omitempty"`
 }
 
 // Taxpayer represents employee tax document data.

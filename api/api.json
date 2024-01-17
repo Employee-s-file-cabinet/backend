@@ -891,7 +891,7 @@
                                                 "required": [
                                                     "id",
                                                     "type",
-                                                    "upload_at"
+                                                    "url"
                                                 ]
                                             }
                                         ]
@@ -2126,7 +2126,7 @@
                                             "required": [
                                                 "id",
                                                 "type",
-                                                "upload_at"
+                                                "url"
                                             ]
                                         }
                                     ]
@@ -3106,25 +3106,36 @@
             },
             "Scan": {
                 "description": "",
-                "required": [],
+                "required": [
+                    "id",
+                    "type"
+                ],
                 "type": "object",
                 "properties": {
+                    "id": {
+                        "description": "",
+                        "type": "integer",
+                        "example": 3
+                    },
                     "type": {
                         "$ref": "#/components/schemas/ScanType",
                         "description": ""
                     },
+                    "document_id": {
+                        "description": "document ID (if necessary), passport ID for passport scan, for example",
+                        "type": "integer",
+                        "example": "1"
+                    },
                     "description": {
                         "description": "",
                         "maxLength": 150,
-                        "type": "string"
+                        "type": "string",
+                        "example": "Краткое описание документа"
                     },
-                    "document_id": {
-                        "description": "document ID (if necessary), passport ID for passport scan, for example",
-                        "type": "integer"
-                    },
-                    "id": {
-                        "description": "",
-                        "type": "integer"
+                    "url": {
+                        "description": "URL to directly download objects (HTTP GET operations)",
+                        "type": "string",
+                        "example": ""
                     },
                     "upload_at": {
                         "format": "date-time",

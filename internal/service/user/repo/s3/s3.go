@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/minio/minio-go/v7"
 
@@ -19,13 +20,15 @@ const (
 
 type storage struct {
 	minioClient *minio.Client
+	urlExpires  time.Duration
 }
 
-func New(ctx context.Context, client *minio.Client) (*storage, error) {
+func New(ctx context.Context, client *minio.Client, cfg s3.Config) (*storage, error) {
 	const op = "s3 storage: new"
 
 	s := &storage{
 		minioClient: client,
+		urlExpires:  cfg.URLExpires,
 	}
 
 	// check to see if we already own the bucket
@@ -95,4 +98,15 @@ func (s *storage) Download(ctx context.Context, prefix, name, etag string) (s3.F
 		ETag:        info.ETag,
 		Reader:      reader,
 	}, reader.Close, nil
+}
+
+func (s *storage) PresignedURL(ctx context.Context, objectName string) (string, error) {
+	const op = "s3 storage: object presigned url"
+
+	url, err := s.minioClient.PresignedGetObject(ctx, bucketName, objectName, s.urlExpires, nil)
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	return url.String(), nil
 }
