@@ -4,6 +4,11 @@ import (
 	"time"
 )
 
+type Insurance struct {
+	Number  string
+	HasScan bool
+}
+
 type User struct {
 	ID                  uint64
 	LastName            string
@@ -18,7 +23,7 @@ type User struct {
 	RegistrationAddress string
 	ResidentialAddress  string
 	Nationality         string
-	InsuranceNumber     string
+	Insurance           Insurance
 	TaxpayerNumber      string
 	Position            string
 	Department          string

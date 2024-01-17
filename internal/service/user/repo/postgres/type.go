@@ -24,6 +24,7 @@ type user struct {
 	ResidentialAddress  string       `db:"residential_address"`
 	Nationality         string       `db:"nationality"`
 	InsuranceNumber     string       `db:"insurance_number"`
+	InsuranceHasScan    bool         `db:"insurance_has_scan"`
 	TaxpayerNumber      string       `db:"taxpayer_number"`
 	Position            string       `db:"position"`
 	Department          string       `db:"department"`
@@ -75,10 +76,13 @@ func convertUserToModelUser(user *user) model.User {
 		RegistrationAddress: user.RegistrationAddress,
 		ResidentialAddress:  user.ResidentialAddress,
 		Nationality:         user.Nationality,
-		InsuranceNumber:     user.InsuranceNumber,
-		TaxpayerNumber:      user.TaxpayerNumber,
-		Position:            user.Position,
-		Department:          user.Department,
+		Insurance: model.Insurance{
+			Number:  user.InsuranceNumber,
+			HasScan: user.InsuranceHasScan,
+		},
+		TaxpayerNumber: user.TaxpayerNumber,
+		Position:       user.Position,
+		Department:     user.Department,
 	}
 }
 

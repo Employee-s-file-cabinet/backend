@@ -38,7 +38,8 @@ func ToAPIFullUser(u *model.User) api.FullUser {
 		Gender: gr,
 		Grade:  u.Grade,
 		Insurance: api.Insurance{
-			Number: u.InsuranceNumber,
+			Number:  u.Insurance.Number,
+			HasScan: u.Insurance.HasScan,
 		},
 		Nationality:         u.Nationality,
 		PlaceOfBirth:        u.PlaceOfBirth,

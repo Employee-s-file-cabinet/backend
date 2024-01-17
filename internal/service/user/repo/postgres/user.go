@@ -30,17 +30,31 @@ func (s *storage) Exist(ctx context.Context, userID uint64) (bool, error) {
 	return true, nil
 }
 
-const getUserQuery = `SELECT 
-users.id AS id,lastname,firstname,middlename,gender,
-date_of_birth,place_of_birth,grade,phone_numbers,
-work_email,registration_address,residential_address,nationality,
-insurance_number,taxpayer_number, 
-positions.title AS position, 
-departments.title AS department 
-FROM users		 
+const (
+	getUserQuery = `SELECT 
+users.id AS id, lastname, firstname, middlename, gender,
+date_of_birth, place_of_birth, grade, phone_numbers,
+work_email, registration_address, residential_address, nationality,
+insurance_number, taxpayer_number,
+positions.title AS position,
+departments.title AS department,
+(SELECT COUNT(*)>0 FROM scans WHERE user_id=@user_id AND scans.type='ИНН') AS insurance_has_scan
+FROM users
 JOIN departments ON users.department_id = departments.id
 JOIN positions ON users.position_id = positions.id
  WHERE users.id = @user_id`
+
+	listPassportsQuery = `SELECT 
+id, number, type, issued_date, issued_by	 
+FROM passports
+WHERE passports.user_id = @user_id`
+
+	listVisasQuery = `SELECT 
+id, number, passport_id, issued_state, 
+valid_to, valid_from, number_entries 
+FROM visas
+WHERE visas.user_id = @user_id`
+)
 
 func (s *storage) Get(ctx context.Context, userID uint64) (*model.User, error) {
 	const op = "postrgresql user storage: get user"
@@ -71,17 +85,8 @@ func (s *storage) GetExpandedUser(ctx context.Context, userID uint64) (*model.Ex
 	batch.Queue(getUserQuery, pgx.NamedArgs{"user_id": userID})
 	batch.Queue(listEducationsQuery, pgx.NamedArgs{"user_id": userID})
 	batch.Queue(listTrainingsQuery, pgx.NamedArgs{"user_id": userID})
-	batch.Queue(`SELECT 
-	id, number, type, issued_date, issued_by	 
-	FROM passports
-	WHERE passports.user_id = @user_id`,
-		pgx.NamedArgs{"user_id": userID})
-	batch.Queue(`SELECT 
-	id, number, passport_id, issued_state, 
-	valid_to, valid_from, number_entries 
-	FROM visas
-	WHERE visas.user_id = @user_id`,
-		pgx.NamedArgs{"user_id": userID})
+	batch.Queue(listPassportsQuery, pgx.NamedArgs{"user_id": userID})
+	batch.Queue(listVisasQuery, pgx.NamedArgs{"user_id": userID})
 	br := s.DB.SendBatch(ctx, batch)
 	defer br.Close()
 
