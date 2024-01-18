@@ -46,7 +46,8 @@ JOIN positions ON users.position_id = positions.id
  WHERE users.id = @user_id`
 
 	listPassportsQuery = `SELECT 
-id, number, type, issued_date, issued_by	 
+id, number, type, issued_date, issued_by,
+(SELECT COUNT(*)>0 FROM scans WHERE scans.document_id=passports.id AND scans.type='Паспорт') AS has_scan
 FROM passports
 WHERE passports.user_id = @user_id`
 
@@ -58,7 +59,7 @@ WHERE visas.user_id = @user_id`
 )
 
 func (s *storage) Get(ctx context.Context, userID uint64) (*model.User, error) {
-	const op = "postrgresql user storage: get user"
+	const op = "postgresql user storage: get user"
 
 	rows, err := s.DB.Query(ctx, getUserQuery, pgx.NamedArgs{"user_id": userID})
 	if err != nil {
@@ -80,7 +81,7 @@ func (s *storage) Get(ctx context.Context, userID uint64) (*model.User, error) {
 // (!) This is a complex query that potentially returns a lot of data.
 // Use context with timeout.
 func (s *storage) GetExpandedUser(ctx context.Context, userID uint64) (*model.ExpandedUser, error) {
-	const op = "postrgresql user storage: get expanded user"
+	const op = "postgresql user storage: get expanded user"
 
 	batch := &pgx.Batch{}
 	batch.Queue(getUserQuery, pgx.NamedArgs{"user_id": userID})
@@ -173,7 +174,7 @@ func (s *storage) GetExpandedUser(ctx context.Context, userID uint64) (*model.Ex
 }
 
 func (s *storage) List(ctx context.Context, pms model.ListUsersParams) ([]model.User, int, error) {
-	const op = "postrgresql user storage: list users"
+	const op = "postgresql user storage: list users"
 
 	sb := pgq.
 		Select(`users.id AS id,lastname,firstname,middlename,gender,

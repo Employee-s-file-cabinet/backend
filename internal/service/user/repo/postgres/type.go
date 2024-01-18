@@ -102,6 +102,7 @@ type education struct {
 	IssuedInstitution string    `db:"title_of_institution"`
 	DateTo            time.Time `db:"year_of_end"`
 	DateFrom          time.Time `db:"year_of_begin"`
+	HasScan           bool      `db:"has_scan"`
 }
 
 func convertEducationToModelEducation(ed education) model.Education {

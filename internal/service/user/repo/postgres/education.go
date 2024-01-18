@@ -12,14 +12,15 @@ import (
 	"github.com/Employee-s-file-cabinet/backend/pkg/repoerr"
 )
 
-const listEducationsQuery = `SELECT 
-id, document_number, title_of_program, 
-title_of_institution, year_of_end, year_of_begin 
+const listEducationsQuery = `SELECT
+id, document_number, title_of_program,
+title_of_institution, year_of_end, year_of_begin,
+(SELECT COUNT(*)>0 FROM scans WHERE scans.document_id=educations.id AND scans.type='Документ об образовании') AS has_scan
 FROM educations
 WHERE user_id = @user_id`
 
 func (s *storage) ListEducations(ctx context.Context, userID uint64) ([]model.Education, error) {
-	const op = "postrgresql user storage: list educations"
+	const op = "postgresql user storage: list educations"
 
 	rows, err := s.DB.Query(ctx, listEducationsQuery, pgx.NamedArgs{"user_id": userID})
 	if err != nil {
@@ -39,7 +40,7 @@ func (s *storage) ListEducations(ctx context.Context, userID uint64) ([]model.Ed
 }
 
 func (s *storage) GetEducation(ctx context.Context, userID, educationID uint64) (*model.Education, error) {
-	const op = "postrgresql user storage: get education"
+	const op = "postgresql user storage: get education"
 
 	rows, err := s.DB.Query(ctx, `SELECT 
 		id, document_number, title_of_program, 
@@ -63,7 +64,7 @@ func (s *storage) GetEducation(ctx context.Context, userID, educationID uint64) 
 }
 
 func (s *storage) AddEducation(ctx context.Context, userID uint64, ed model.Education) (uint64, error) {
-	const op = "postrgresql user storage: add education"
+	const op = "postgresql user storage: add education"
 
 	row := s.DB.QueryRow(ctx, `INSERT INTO educations
 		("user_id", "document_number", "title_of_program", 
