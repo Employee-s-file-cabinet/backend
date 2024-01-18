@@ -10,10 +10,10 @@ import (
 )
 
 type shortUserInfo struct {
-	ID                            uint64       `db:"id"`
-	LastName                      string       `db:"lastname"`
-	FirstName                     string       `db:"firstname"`
-	MiddleName                    string       `db:"middlename"`
+	ID           uint64       `db:"id"`
+	LastName     string       `db:"lastname"`
+	FirstName    string       `db:"firstname"`
+	MiddleName   string       `db:"middlename"`
 	Position     string       `db:"position"`
 	Department   string       `db:"department"`
 	Email        string       `db:"work_email"`
@@ -22,19 +22,19 @@ type shortUserInfo struct {
 
 type user struct {
 	shortUserInfo
-	Gender                        gender       `db:"gender"`
-	DateOfBirth                   time.Time    `db:"date_of_birth"`
-	PlaceOfBirth                  string       `db:"place_of_birth"`
-	Grade                         string       `db:"grade"`
-	RegistrationAddress           string       `db:"registration_address"`
-	ResidentialAddress            string       `db:"residential_address"`
-	Nationality                   string       `db:"nationality"`
-	InsuranceNumber               string       `db:"insurance_number"`
-	InsuranceHasScan              bool         `db:"insurance_has_scan"`
-	TaxpayerNumber                string       `db:"taxpayer_number"`
-	TaxpayerHasScan               bool         `db:"taxpayer_has_scan"`
-	PositionID          uint64    `db:"position_id"`
-	DepartmentID        uint64    `db:"department_id"`
+	Gender                        gender    `db:"gender"`
+	DateOfBirth                   time.Time `db:"date_of_birth"`
+	PlaceOfBirth                  string    `db:"place_of_birth"`
+	Grade                         string    `db:"grade"`
+	RegistrationAddress           string    `db:"registration_address"`
+	ResidentialAddress            string    `db:"residential_address"`
+	Nationality                   string    `db:"nationality"`
+	InsuranceNumber               string    `db:"insurance_number"`
+	InsuranceHasScan              bool      `db:"insurance_has_scan"`
+	TaxpayerNumber                string    `db:"taxpayer_number"`
+	TaxpayerHasScan               bool      `db:"taxpayer_has_scan"`
+	PositionID                    uint64    `db:"position_id"`
+	DepartmentID                  uint64    `db:"department_id"`
 	Military                      military
 	PersonalDataProcessingHasScan bool `db:"pdp_has_scan"`
 }
@@ -100,8 +100,8 @@ func convertUserToModelUser(user *user) model.User {
 			Number:  user.TaxpayerNumber,
 			HasScan: user.TaxpayerHasScan,
 		},
-		PositionID:          user.PositionID,
-		DepartmentID:        user.DepartmentID,
+		PositionID:   user.PositionID,
+		DepartmentID: user.DepartmentID,
 		Military: model.Military{
 			Rank:         user.Military.Rank,
 			Speciality:   user.Military.Speciality,
@@ -149,8 +149,8 @@ func convertModelUserToUser(u *model.User) user {
 		RegistrationAddress: u.RegistrationAddress,
 		ResidentialAddress:  u.ResidentialAddress,
 		Nationality:         u.Nationality,
-		InsuranceNumber:     u.InsuranceNumber,
-		TaxpayerNumber:      u.TaxpayerNumber,
+		InsuranceNumber:     u.Insurance.Number,
+		TaxpayerNumber:      u.Taxpayer.Number,
 		PositionID:          u.PositionID,
 		DepartmentID:        u.DepartmentID,
 	}

@@ -21,8 +21,8 @@ func FromAPIAddUserRequest(req api.AddUserJSONRequestBody) model.User {
 		RegistrationAddress: req.RegistrationAddress,
 		ResidentialAddress:  req.ResidentialAddress,
 		Nationality:         req.Nationality,
-		InsuranceNumber:     req.Insurance.Number,
-		TaxpayerNumber:      req.Taxpayer.Number,
+		Insurance:           model.Insurance{Number: req.Insurance.Number},
+		Taxpayer:            model.Taxpayer{Number: req.Taxpayer.Number},
 		PositionID:          req.PositionID,
 		DepartmentID:        req.DepartmentID,
 	}
@@ -56,8 +56,8 @@ func FromAPIPutUserRequest(userID uint64, req api.PutUserJSONRequestBody) model.
 		RegistrationAddress: req.RegistrationAddress,
 		ResidentialAddress:  req.ResidentialAddress,
 		Nationality:         req.Nationality,
-		InsuranceNumber:     req.Insurance.Number,
-		TaxpayerNumber:      req.Taxpayer.Number,
+		Insurance:           model.Insurance{Number: req.Insurance.Number},
+		Taxpayer:            model.Taxpayer{Number: req.Taxpayer.Number},
 		PositionID:          req.PositionID,
 		DepartmentID:        req.DepartmentID,
 	}
@@ -110,20 +110,20 @@ func ToAPIGetUserResponse(u *model.User) api.GetUserResponse {
 		ResidentialAddress:  u.ResidentialAddress,
 		Insurance: api.Insurance{
 			Number:  u.Insurance.Number,
-			HasScan: u.Insurance.HasScan,
+			HasScan: &u.Insurance.HasScan,
 		},
 		Taxpayer: api.Taxpayer{
 			Number:  u.Taxpayer.Number,
-			HasScan: u.Taxpayer.HasScan,
+			HasScan: &u.Taxpayer.HasScan,
 		},
 		Military: &api.Military{
 			Category:    u.Military.Category,
 			Comissariat: u.Military.Commissariat,
-			HasScan:     u.Military.HasScan,
+			HasScan:     &u.Military.HasScan,
 			Rank:        u.Military.Rank,
 			Speciality:  u.Military.Speciality,
 		},
-		PersonalDataProcessing: &api.PersonalDataProcessing{
+		PersonalDataProcessing: api.PersonalDataProcessing{
 			HasScan: u.PersonalDataProcessing.HasScan,
 		},
 	}

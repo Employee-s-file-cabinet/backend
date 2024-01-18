@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/Employee-s-file-cabinet/backend/internal/repo/s3"
+	serr "github.com/Employee-s-file-cabinet/backend/internal/service"
 	"github.com/Employee-s-file-cabinet/backend/internal/service/user/model"
 	"github.com/Employee-s-file-cabinet/backend/pkg/repoerr"
 )
@@ -21,7 +22,7 @@ func (s *service) GetScan(ctx context.Context, userID, scanID uint64) (*model.Sc
 	sc, err := s.userRepository.GetScan(ctx, userID, scanID)
 	if err != nil {
 		if errors.Is(err, repoerr.ErrRecordNotFound) {
-			return nil, fmt.Errorf("%s: %w", op, ErrScanFileNotFound)
+			return nil, serr.NewError(serr.NotFound, "user or scan file not found")
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -43,7 +44,7 @@ func (s *service) ListScans(ctx context.Context, userID uint64) ([]model.Scan, e
 	scans, err := s.userRepository.ListScans(ctx, userID)
 	if err != nil {
 		if errors.Is(err, repoerr.ErrRecordNotFound) {
-			return nil, fmt.Errorf("%s: %w", op, ErrUserNotFound)
+			return nil, serr.NewError(serr.NotFound, "user not found")
 		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -54,13 +55,13 @@ func (s *service) UploadScan(ctx context.Context, userID uint64, ms model.Scan, 
 	const op = "user service: upload scan"
 
 	if f.Size > MaxScanSize {
-		return 0, fmt.Errorf("%s: %w", op, ErrScanFileSizeTooLarge)
+		return 0, serr.NewError(serr.ContentTooLarge, "scan file size too large")
 	}
 
 	if exist, err := s.userRepository.Exist(ctx, userID); err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	} else if !exist {
-		return 0, fmt.Errorf("%s: %w", op, ErrUserNotFound)
+		return 0, serr.NewError(serr.NotFound, "user not found")
 	}
 
 	// Prefix={user_id}; Name={scan_type}-{document_id}

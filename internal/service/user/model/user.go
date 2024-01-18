@@ -39,17 +39,17 @@ type PersonalDataProcessing struct {
 
 type User struct {
 	ShortUserInfo
-	Gender              gender
-	DateOfBirth         time.Time
-	PlaceOfBirth        string
-	Grade               string
-	RegistrationAddress string
-	ResidentialAddress  string
-	Nationality         string
+	Gender                 gender
+	DateOfBirth            time.Time
+	PlaceOfBirth           string
+	Grade                  string
+	RegistrationAddress    string
+	ResidentialAddress     string
+	Nationality            string
 	Insurance              Insurance
 	Taxpayer               Taxpayer
-	Position               string
-	Department             string
+	PositionID             uint64
+	DepartmentID           uint64
 	Military               Military
 	PersonalDataProcessing PersonalDataProcessing
 }

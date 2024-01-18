@@ -97,10 +97,10 @@ func (s *storage) UpdatePassport(ctx context.Context, userID uint64, mp model.Pa
 	p := convertModelPassportToPassport(mp)
 
 	tag, err := s.DB.Exec(ctx, `UPDATE passports
-	SET number=@number, 
-	type=@type, 
-	issued_date=@issued_date, 
-	issued_by=@issued_by
+	SET number = @number, 
+	type = @type, 
+	issued_date = @issued_date, 
+	issued_by = @issued_by
 	WHERE id=@id AND user_id=@user_id`,
 		pgx.NamedArgs{
 			"user_id":     userID,

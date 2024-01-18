@@ -8,16 +8,16 @@ import (
 )
 
 func ToAPIScan(ms *model.Scan) api.Scan {
-	var docID *int
+	var docID *uint64
 	if ms.DocumentID > 0 {
-		id := (int)(ms.DocumentID)
+		id := ms.DocumentID
 		docID = &id
 	}
 	return api.Scan{
-		ID:          &ms.ID,
+		ID:          ms.ID,
 		Type:        api.ScanType(ms.Type),
 		DocumentID:  docID,
-		Description: ms.Description,
+		Description: &ms.Description,
 		Url:         ms.URL,
 		UploadAt:    ms.UploadedAt.Format(time.RFC3339),
 	}

@@ -98,8 +98,8 @@ func (s *storage) UpdateTraining(ctx context.Context, userID uint64, tr model.Tr
 	const op = "postrgresql user storage: update training"
 
 	tag, err := s.DB.Exec(ctx, `UPDATE trainings
-	SET title_of_program=@title_of_program, title_of_institution=@title_of_institution, 
-	cost=@cost, date_end=@date_end, date_begin=@date_begin
+	SET title_of_program = @title_of_program, title_of_institution = @title_of_institution, 
+	cost = @cost, date_end = @date_end, date_begin = @date_begin
 	WHERE id=@id AND user_id=@user_id`,
 		pgx.NamedArgs{
 			"user_id":              userID,

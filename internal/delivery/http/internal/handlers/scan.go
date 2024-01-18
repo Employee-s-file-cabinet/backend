@@ -8,9 +8,9 @@ import (
 
 	"github.com/muonsoft/validation/validator"
 
-	serr "github.com/Employee-s-file-cabinet/backend/internal/delivery/http/errors"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/api"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/convert"
+	srverr "github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/errors"
 	"github.com/Employee-s-file-cabinet/backend/internal/delivery/http/internal/response"
 	uservice "github.com/Employee-s-file-cabinet/backend/internal/service/user"
 	"github.com/Employee-s-file-cabinet/backend/internal/service/user/model"
@@ -24,24 +24,15 @@ func (h *handler) ListScans(w http.ResponseWriter, r *http.Request, userID uint6
 
 	scans, err := h.userService.ListScans(ctx, userID)
 	if err != nil {
-		if errors.Is(err, uservice.ErrUserNotFound) {
-			serr.ErrorMessage(w, r, http.StatusNotFound, uservice.ErrUserNotFound.Error(), nil)
-			return
-		}
-		serr.ReportError(r, err, false)
-		serr.ErrorMessage(w, r,
-			http.StatusInternalServerError,
-			http.StatusText(http.StatusInternalServerError),
-			nil)
+		srverr.ResponseServiceError(w, r, err)
 		return
 	}
 
 	if err = response.JSON(w, http.StatusOK, convert.ToAPIScans(scans)); err != nil {
-		serr.ReportError(r, err, false)
-		serr.ErrorMessage(w, r,
+		srverr.LogError(r, err, false)
+		srverr.ResponseError(w, r,
 			http.StatusInternalServerError,
-			http.StatusText(http.StatusInternalServerError),
-			nil)
+			srverr.ErrInternalServerErrorMsg)
 	}
 }
 
@@ -53,33 +44,24 @@ func (h *handler) UploadScan(w http.ResponseWriter, r *http.Request, userID uint
 
 	err := r.ParseMultipartForm(32 << 20) // maxMemory 32MB
 	if err != nil {
-		serr.ErrorMessage(w, r,
-			http.StatusBadRequest,
-			err.Error(),
-			nil)
+		srverr.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	scan, err := handleScanMultipartRequest(ctx, r)
 	if err != nil {
-		serr.ErrorMessage(w, r, http.StatusBadRequest, err.Error(), nil)
+		srverr.ResponseError(w, r, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	file, header, err := r.FormFile("fileName")
 	if err != nil {
-		serr.ErrorMessage(w, r,
-			http.StatusInternalServerError,
-			err.Error(),
-			nil)
+		srverr.ResponseError(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if header.Size > uservice.MaxScanSize {
-		serr.ErrorMessage(w, r,
-			http.StatusBadRequest,
-			serr.ErrLimitRequestBodySize.Error(),
-			nil)
+		srverr.ResponseError(w, r, http.StatusBadRequest, errLimitRequestBodySizeMsg)
 		return
 	}
 
@@ -99,17 +81,13 @@ func (h *handler) UploadScan(w http.ResponseWriter, r *http.Request, userID uint
 		})
 	if err != nil {
 		if errors.Is(err, new(http.MaxBytesError)) {
-			serr.ErrorMessage(w, r,
-				http.StatusBadRequest,
-				serr.ErrLimitRequestBodySize.Error(),
-				nil)
+			srverr.ResponseError(w, r, http.StatusBadRequest, errLimitRequestBodySizeMsg)
 			return
 		}
-		serr.ReportError(r, err, false)
-		serr.ErrorMessage(w, r,
+		srverr.LogError(r, err, false)
+		srverr.ResponseError(w, r,
 			http.StatusInternalServerError,
-			http.StatusText(http.StatusInternalServerError),
-			nil)
+			srverr.ErrInternalServerErrorMsg)
 		return
 	}
 
@@ -128,9 +106,9 @@ func handleScanMultipartRequest(ctx context.Context, r *http.Request) (api.Uploa
 		return api.UploadScanMultipartRequestBody{}, err
 	}
 
-	var docID int
+	var docID uint64
 	if r.PostFormValue("document_id") != "" {
-		docID, err = strconv.Atoi(r.PostFormValue("document_id"))
+		docID, err = strconv.ParseUint(r.PostFormValue("document_id"), 10, 64)
 		if err != nil {
 			return api.UploadScanMultipartRequestBody{}, err
 		}
@@ -153,23 +131,14 @@ func (h *handler) GetScan(w http.ResponseWriter, r *http.Request, userID uint64,
 
 	scan, err := h.userService.GetScan(ctx, userID, scanID)
 	if err != nil {
-		if errors.Is(err, uservice.ErrScanFileNotFound) {
-			serr.ErrorMessage(w, r, http.StatusNotFound, uservice.ErrScanFileNotFound.Error(), nil)
-			return
-		}
-		serr.ReportError(r, err, false)
-		serr.ErrorMessage(w, r,
-			http.StatusInternalServerError,
-			http.StatusText(http.StatusInternalServerError),
-			nil)
+		srverr.ResponseServiceError(w, r, err)
 		return
 	}
 
 	if err = response.JSON(w, http.StatusOK, convert.ToAPIScan(scan)); err != nil {
-		serr.ReportError(r, err, false)
-		serr.ErrorMessage(w, r,
+		srverr.LogError(r, err, false)
+		srverr.ResponseError(w, r,
 			http.StatusInternalServerError,
-			http.StatusText(http.StatusInternalServerError),
-			nil)
+			srverr.ErrInternalServerErrorMsg)
 	}
 }
