@@ -207,6 +207,15 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+// Status defines model for Status.
+type Status struct {
+	Version     string `json:"version"`
+	Date        string `json:"date"`
+	Commit      string `json:"commit"`
+	Database    string `json:"database"`
+	FileStorage string `json:"file_storage"`
+}
+
 // ExpandedPassport defines model for ExpandedPassport.
 type ExpandedPassport struct {
 	Passport

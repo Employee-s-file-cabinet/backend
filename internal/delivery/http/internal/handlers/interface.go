@@ -7,6 +7,7 @@ import (
 	"github.com/casbin/casbin/v2"
 
 	"github.com/Employee-s-file-cabinet/backend/internal/service/auth/model/token"
+	"github.com/Employee-s-file-cabinet/backend/internal/service/health/model"
 	umodel "github.com/Employee-s-file-cabinet/backend/internal/service/user/model"
 )
 
@@ -56,4 +57,8 @@ type PasswordRecoveryService interface {
 	InitChangePassword(ctx context.Context, login string) error
 	ChangePassword(ctx context.Context, key, newPassword string) error
 	Check(ctx context.Context, key string) error
+}
+
+type StatusCheckService interface {
+	HealthCheck(ctx context.Context) model.ServiceStatus
 }
