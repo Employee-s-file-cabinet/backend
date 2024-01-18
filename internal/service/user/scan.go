@@ -28,7 +28,9 @@ func (s *service) GetScan(ctx context.Context, userID, scanID uint64) (*model.Sc
 
 	// objectName in s3: {user_id}_{scan_type}-{document_id}
 	// Ex.: 3_passport-2, 7_pdp-1, 21_contract-4
-	if sc.URL, err = s.fileRepository.PresignedURL(ctx, fmt.Sprintf("%d_%s-%d", userID, sc.Type, sc.DocumentID)); err != nil {
+	if sc.URL, err = s.fileRepository.PresignedURL(ctx,
+		strconv.Itoa(int(userID)),
+		fmt.Sprintf("%s-%d", sc.Type, sc.DocumentID)); err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 

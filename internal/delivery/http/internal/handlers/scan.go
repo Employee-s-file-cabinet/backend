@@ -74,7 +74,6 @@ func (h *handler) UploadScan(w http.ResponseWriter, r *http.Request, userID uint
 			nil)
 		return
 	}
-	defer file.Close()
 
 	if header.Size > uservice.MaxScanSize {
 		serr.ErrorMessage(w, r,

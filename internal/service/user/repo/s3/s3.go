@@ -100,10 +100,10 @@ func (s *storage) Download(ctx context.Context, prefix, name, etag string) (s3.F
 	}, reader.Close, nil
 }
 
-func (s *storage) PresignedURL(ctx context.Context, objectName string) (string, error) {
+func (s *storage) PresignedURL(ctx context.Context, prefix, name string) (string, error) {
 	const op = "s3 storage: object presigned url"
 
-	url, err := s.minioClient.PresignedGetObject(ctx, bucketName, objectName, s.urlExpires, nil)
+	url, err := s.minioClient.PresignedGetObject(ctx, bucketName, fmt.Sprintf("%s_%s", prefix, name), s.urlExpires, nil)
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", op, err)
 	}

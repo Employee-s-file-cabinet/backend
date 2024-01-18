@@ -41,5 +41,5 @@ type userRepository interface {
 type s3FileRepository interface {
 	Upload(context.Context, s3.File) error
 	Download(ctx context.Context, prefix, name, etag string) (file s3.File, closeFn func() error, err error)
-	PresignedURL(ctx context.Context, objectName string) (string, error)
+	PresignedURL(ctx context.Context, prefix, name string) (string, error)
 }
