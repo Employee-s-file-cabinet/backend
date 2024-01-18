@@ -11,6 +11,7 @@ func ToAPIExpandedFullUser(u *model.ExpandedUser) api.ExpandedFullUser {
 	var expUser api.ExpandedFullUser
 
 	expUser.FullUser = ToAPIFullUser(&u.User)
+	expUser.Military = nil
 	expUser.Educations = ToAPIEducations(u.Educations)
 	expUser.Trainings = ToAPITrainings(u.Trainings)
 	expUser.Passports = ToAPIPassportsWithVisas(u.Passports)
@@ -48,6 +49,13 @@ func ToAPIFullUser(u *model.User) api.FullUser {
 		Taxpayer: api.Taxpayer{
 			Number:  u.Taxpayer.Number,
 			HasScan: u.Taxpayer.HasScan,
+		},
+		Military: &api.Military{
+			Category:    u.Military.Category,
+			Comissariat: u.Military.Commissariat,
+			HasScan:     u.Military.HasScan,
+			Rank:        u.Military.Rank,
+			Speciality:  u.Military.Speciality,
 		},
 	}
 }

@@ -56,6 +56,12 @@ id, number, passport_id, issued_state,
 valid_to, valid_from, number_entries 
 FROM visas
 WHERE visas.user_id = @user_id`
+
+	getMilitaryQuery = `SELECT
+rank, specialty, category_of_validity, title_of_commissariat,
+(SELECT COUNT(*)>0 FROM scans WHERE scans.user_id=@user_id AND scans.document_id=militaries.id AND scans.type='Военный билет') AS has_scan
+FROM militaries
+WHERE militaries.user_id = @user_id`
 )
 
 func (s *storage) Get(ctx context.Context, userID uint64) (*model.User, error) {
@@ -73,6 +79,19 @@ func (s *storage) Get(ctx context.Context, userID uint64) (*model.User, error) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
+	rows, err = s.DB.Query(ctx, getMilitaryQuery, pgx.NamedArgs{"user_id": userID})
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	m, err := pgx.CollectExactlyOneRow(rows, pgx.RowToAddrOfStructByNameLax[military])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("%s: %w", op, repoerr.ErrRecordNotFound)
+		}
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	u.Military = *m
 	mu := convertUserToModelUser(u)
 	return &mu, nil
 }

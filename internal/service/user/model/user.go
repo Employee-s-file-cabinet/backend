@@ -14,6 +14,14 @@ type Taxpayer struct {
 	HasScan bool
 }
 
+type Military struct {
+	Rank         string
+	Speciality   string
+	Category     string
+	Commissariat string
+	HasScan      bool
+}
+
 type User struct {
 	ID                  uint64
 	LastName            string
@@ -32,6 +40,7 @@ type User struct {
 	Taxpayer            Taxpayer
 	Position            string
 	Department          string
+	Military            Military
 }
 
 // Gender represents user gender.

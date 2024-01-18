@@ -29,6 +29,7 @@ type user struct {
 	TaxpayerHasScan     bool         `db:"taxpayer_has_scan"`
 	Position            string       `db:"position"`
 	Department          string       `db:"department"`
+	Military            military
 }
 
 type gender string
@@ -52,6 +53,14 @@ func (ph *phoneNumbers) Scan(val interface{}) error {
 }
 func (ph *phoneNumbers) Value() (driver.Value, error) {
 	return json.Marshal(ph)
+}
+
+type military struct {
+	Rank         string `db:"rank"`
+	Speciality   string `db:"specialty"`
+	Category     string `db:"category_of_validity"`
+	Commissariat string `db:"title_of_commissariat"`
+	HasScan      bool   `db:"has_scan"`
 }
 
 func convertUserToModelUser(user *user) model.User {
@@ -87,6 +96,13 @@ func convertUserToModelUser(user *user) model.User {
 		},
 		Position:   user.Position,
 		Department: user.Department,
+		Military: model.Military{
+			Rank:         user.Military.Rank,
+			Speciality:   user.Military.Speciality,
+			Category:     user.Military.Category,
+			Commissariat: user.Military.Commissariat,
+			HasScan:      user.Military.HasScan,
+		},
 	}
 }
 
