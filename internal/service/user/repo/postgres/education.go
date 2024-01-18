@@ -42,9 +42,10 @@ func (s *storage) ListEducations(ctx context.Context, userID uint64) ([]model.Ed
 func (s *storage) GetEducation(ctx context.Context, userID, educationID uint64) (*model.Education, error) {
 	const op = "postgresql user storage: get education"
 
-	rows, err := s.DB.Query(ctx, `SELECT 
-		id, document_number, title_of_program, 
-		title_of_institution, year_of_end, year_of_begin 
+	rows, err := s.DB.Query(ctx, `SELECT
+		id, document_number, title_of_program,
+		title_of_institution, year_of_end, year_of_begin,
+		(SELECT COUNT(*)>0 FROM scans WHERE user_id=@user_id AND scans.document_id=educations.id AND scans.type='Документ об образовании') AS has_scan
 		FROM educations
 		WHERE id = @education_id AND user_id = @user_id`,
 		pgx.NamedArgs{

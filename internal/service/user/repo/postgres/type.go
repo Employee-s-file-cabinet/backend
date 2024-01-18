@@ -116,6 +116,7 @@ type training struct {
 	Cost              uint64    `db:"cost"`
 	DateTo            time.Time `db:"date_end"`
 	DateFrom          time.Time `db:"date_begin"`
+	HasScan           bool      `db:"has_scan"`
 }
 
 func convertTrainingToModelTraining(tr training) model.Training {

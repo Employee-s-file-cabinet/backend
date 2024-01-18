@@ -23,6 +23,7 @@ func ToAPITraining(mtr *model.Training) api.Training {
 		ID:                &mtr.ID,
 		IssuedInstitution: mtr.IssuedInstitution,
 		Program:           mtr.Program,
+		HasScan:           mtr.HasScan,
 	}
 }
 
