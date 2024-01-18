@@ -396,3 +396,63 @@ func convertModelScanToScan(ms model.Scan) scan {
 		Description: ms.Description,
 	}
 }
+
+type contract struct {
+	ID              uint64       `db:"id"`
+	Number          string       `db:"number"`
+	ContractType    contractType `db:"contract_type"`
+	WorkTypeID      uint64       `db:"work_type_id"`
+	WorkType        string       `db:"work_type"`
+	ProbationPeriod uint32       `db:"probation_period"`
+	DateBegin       time.Time    `db:"date_begin"`
+	DateEnd         time.Time    `db:"date_end"`
+}
+
+type contractType string
+
+const (
+	contractTypePermanent contractType = "Бессрочный"
+	contractTypeTemporary contractType = "Срочный"
+)
+
+func convertContractToModelContract(c contract) model.Contract {
+	var ct model.ContractType
+	switch c.ContractType {
+	case contractTypePermanent:
+		ct = model.ContractTypePermanent
+	case contractTypeTemporary:
+		ct = model.ContractTypeTemporary
+	}
+
+	return model.Contract{
+		ID:              c.ID,
+		Number:          c.Number,
+		ContractType:    ct,
+		WorkTypeID:      c.WorkTypeID,
+		WorkType:        c.WorkType,
+		ProbationPeriod: c.ProbationPeriod,
+		DateBegin:       c.DateBegin,
+		DateEnd:         c.DateEnd,
+	}
+}
+
+func convertModelContractToContratc(mc model.Contract) contract {
+	var ct contractType
+	switch mc.ContractType {
+	case model.ContractTypePermanent:
+		ct = contractTypePermanent
+	case model.ContractTypeTemporary:
+		ct = contractTypeTemporary
+	}
+
+	return contract{
+		ID:              mc.ID,
+		Number:          mc.Number,
+		ContractType:    ct,
+		WorkTypeID:      mc.WorkTypeID,
+		WorkType:        mc.WorkType,
+		ProbationPeriod: mc.ProbationPeriod,
+		DateBegin:       mc.DateBegin,
+		DateEnd:         mc.DateEnd,
+	}
+}

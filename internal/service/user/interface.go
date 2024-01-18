@@ -43,6 +43,10 @@ type userRepository interface {
 	GetScan(ctx context.Context, userID, scanID uint64) (*model.Scan, error)
 	ListScans(ctx context.Context, userID uint64) ([]model.Scan, error)
 	AddScan(ctx context.Context, userID uint64, ms model.Scan) (uint64, error)
+
+	ListContracts(ctx context.Context, userID uint64) ([]model.Contract, error)
+	GetContract(ctx context.Context, userID, contractID uint64) (*model.Contract, error)
+	AddContract(ctx context.Context, userID uint64, tr model.Contract) (uint64, error)
 }
 
 type s3FileRepository interface {
