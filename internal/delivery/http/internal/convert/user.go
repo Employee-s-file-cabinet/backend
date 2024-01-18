@@ -46,7 +46,8 @@ func ToAPIFullUser(u *model.User) api.FullUser {
 		RegistrationAddress: u.RegistrationAddress,
 		ResidentialAddress:  u.ResidentialAddress,
 		Taxpayer: api.Taxpayer{
-			Number: u.TaxpayerNumber,
+			Number:  u.Taxpayer.Number,
+			HasScan: u.Taxpayer.HasScan,
 		},
 	}
 }

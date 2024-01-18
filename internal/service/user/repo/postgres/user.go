@@ -38,7 +38,8 @@ work_email, registration_address, residential_address, nationality,
 insurance_number, taxpayer_number,
 positions.title AS position,
 departments.title AS department,
-(SELECT COUNT(*)>0 FROM scans WHERE user_id=@user_id AND scans.type='ИНН') AS insurance_has_scan
+(SELECT COUNT(*)>0 FROM scans WHERE user_id=@user_id AND scans.type='ИНН') AS insurance_has_scan,
+(SELECT COUNT(*)>0 FROM scans WHERE user_id=@user_id AND scans.type='СНИЛС') AS taxpayer_has_scan
 FROM users
 JOIN departments ON users.department_id = departments.id
 JOIN positions ON users.position_id = positions.id

@@ -9,6 +9,11 @@ type Insurance struct {
 	HasScan bool
 }
 
+type Taxpayer struct {
+	Number  string
+	HasScan bool
+}
+
 type User struct {
 	ID                  uint64
 	LastName            string
@@ -24,7 +29,7 @@ type User struct {
 	ResidentialAddress  string
 	Nationality         string
 	Insurance           Insurance
-	TaxpayerNumber      string
+	Taxpayer            Taxpayer
 	Position            string
 	Department          string
 }
