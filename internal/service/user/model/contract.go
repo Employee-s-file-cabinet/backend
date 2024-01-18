@@ -6,17 +6,17 @@ type Contract struct {
 	ID              uint64
 	Number          string
 	HasScan         bool
-	ContractType    ContractType
+	ContractType    contractType
 	WorkTypeID      uint64
 	WorkType        string
-	ProbationPeriod uint32
+	ProbationPeriod *uint
 	DateBegin       time.Time
-	DateEnd         time.Time
+	DateEnd         *time.Time
 }
 
-type ContractType string
+type contractType string
 
 const (
-	ContractTypePermanent ContractType = "permanent"
-	ContractTypeTemporary ContractType = "temporary"
+	ContractTypePermanent contractType = "permanent"
+	ContractTypeTemporary contractType = "temporary"
 )

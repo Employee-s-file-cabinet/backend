@@ -19,13 +19,13 @@ import (
 func (h *handler) ListContracts(w http.ResponseWriter, r *http.Request, userID uint64) {
 	ctx := r.Context()
 
-	eds, err := h.userService.ListContracts(ctx, userID)
+	cs, err := h.userService.ListContracts(ctx, userID)
 	if err != nil {
 		srverr.ResponseServiceError(w, r, err)
 		return
 	}
 
-	if err := response.JSON(w, http.StatusOK, convert.ToAPIContracts(eds)); err != nil {
+	if err := response.JSON(w, http.StatusOK, convert.ToAPIListContracts(cs)); err != nil {
 		srverr.LogError(r, err, false)
 		srverr.ResponseError(w, r,
 			http.StatusInternalServerError,
@@ -52,7 +52,7 @@ func (h *handler) AddContract(w http.ResponseWriter, r *http.Request, userID uin
 		return
 	}
 
-	id, err := h.userService.AddContract(ctx, userID, convert.ToModelCotntact(ct))
+	id, err := h.userService.AddContract(ctx, userID, convert.FromAPIAddContractRequest(ct))
 	if err != nil {
 		srverr.ResponseServiceError(w, r, err)
 		return
@@ -74,13 +74,13 @@ func (h *handler) DeleteContract(w http.ResponseWriter, r *http.Request, userID 
 func (h *handler) GetContract(w http.ResponseWriter, r *http.Request, userID uint64, contractID uint64) {
 	ctx := r.Context()
 
-	ed, err := h.userService.GetContract(ctx, userID, contractID)
+	c, err := h.userService.GetContract(ctx, userID, contractID)
 	if err != nil {
 		srverr.ResponseServiceError(w, r, err)
 		return
 	}
 
-	if err := response.JSON(w, http.StatusOK, convert.ToAPIContract(ed)); err != nil {
+	if err := response.JSON(w, http.StatusOK, convert.ToAPIGetContractResponse(c)); err != nil {
 		srverr.LogError(r, err, false)
 		srverr.ResponseError(w, r,
 			http.StatusInternalServerError,
@@ -110,5 +110,23 @@ func (h *handler) PatchContract(w http.ResponseWriter, r *http.Request, userID u
 // @Param   body body api.PutContractJSONRequestBody true ""
 // @Router  /users/{user_id}/contracts/{contract_id} [put]
 func (h *handler) PutContract(w http.ResponseWriter, r *http.Request, userID uint64, contractID uint64) {
-	w.WriteHeader(http.StatusNotImplemented)
+	ctx := r.Context()
+
+	var c api.PutContractJSONRequestBody
+	if err := request.DecodeJSONStrict(w, r, &c); err != nil {
+		srverr.ResponseError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := c.Validate(ctx, validator.Instance()); err != nil {
+		msg := api.ValidationErrorMessage(err)
+		srverr.ResponseError(w, r, http.StatusBadRequest, msg)
+		return
+	}
+
+	err := h.userService.UpdateContract(ctx, userID, convert.FromAPIPutContractRequest(contractID, c))
+	if err != nil {
+		srverr.ResponseServiceError(w, r, err)
+		return
+	}
 }

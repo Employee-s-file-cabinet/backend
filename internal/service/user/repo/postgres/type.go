@@ -402,10 +402,9 @@ type contract struct {
 	Number          string       `db:"number"`
 	ContractType    contractType `db:"contract_type"`
 	WorkTypeID      uint64       `db:"work_type_id"`
-	WorkType        string       `db:"work_type"`
-	ProbationPeriod uint32       `db:"probation_period"`
+	ProbationPeriod *uint        `db:"probation_period"`
 	DateBegin       time.Time    `db:"date_begin"`
-	DateEnd         time.Time    `db:"date_end"`
+	DateEnd         *time.Time   `db:"date_end"`
 }
 
 type contractType string
@@ -416,43 +415,41 @@ const (
 )
 
 func convertContractToModelContract(c contract) model.Contract {
-	var ct model.ContractType
-	switch c.ContractType {
-	case contractTypePermanent:
-		ct = model.ContractTypePermanent
-	case contractTypeTemporary:
-		ct = model.ContractTypeTemporary
-	}
-
-	return model.Contract{
+	mc := model.Contract{
 		ID:              c.ID,
 		Number:          c.Number,
-		ContractType:    ct,
 		WorkTypeID:      c.WorkTypeID,
-		WorkType:        c.WorkType,
 		ProbationPeriod: c.ProbationPeriod,
 		DateBegin:       c.DateBegin,
 		DateEnd:         c.DateEnd,
 	}
-}
 
-func convertModelContractToContratc(mc model.Contract) contract {
-	var ct contractType
-	switch mc.ContractType {
-	case model.ContractTypePermanent:
-		ct = contractTypePermanent
-	case model.ContractTypeTemporary:
-		ct = contractTypeTemporary
+	switch c.ContractType {
+	case contractTypePermanent:
+		mc.ContractType = model.ContractTypePermanent
+	case contractTypeTemporary:
+		mc.ContractType = model.ContractTypeTemporary
 	}
 
-	return contract{
+	return mc
+}
+
+func convertModelContractToContract(mc model.Contract) contract {
+	c := contract{
 		ID:              mc.ID,
 		Number:          mc.Number,
-		ContractType:    ct,
 		WorkTypeID:      mc.WorkTypeID,
-		WorkType:        mc.WorkType,
 		ProbationPeriod: mc.ProbationPeriod,
 		DateBegin:       mc.DateBegin,
 		DateEnd:         mc.DateEnd,
 	}
+
+	switch mc.ContractType {
+	case model.ContractTypePermanent:
+		c.ContractType = contractTypePermanent
+	case model.ContractTypeTemporary:
+		c.ContractType = contractTypeTemporary
+	}
+
+	return c
 }

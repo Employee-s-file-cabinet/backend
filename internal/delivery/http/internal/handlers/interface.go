@@ -51,6 +51,7 @@ type UserService interface {
 	GetContract(ctx context.Context, userID, contractID uint64) (*umodel.Contract, error)
 	ListContracts(ctx context.Context, userID uint64) ([]umodel.Contract, error)
 	AddContract(ctx context.Context, userID uint64, ed umodel.Contract) (uint64, error)
+	UpdateContract(ctx context.Context, userID uint64, c umodel.Contract) error
 }
 
 type AuthService interface {

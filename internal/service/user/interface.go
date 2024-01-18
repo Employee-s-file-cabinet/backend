@@ -47,6 +47,7 @@ type userRepository interface {
 	ListContracts(ctx context.Context, userID uint64) ([]model.Contract, error)
 	GetContract(ctx context.Context, userID, contractID uint64) (*model.Contract, error)
 	AddContract(ctx context.Context, userID uint64, tr model.Contract) (uint64, error)
+	UpdateContract(ctx context.Context, userID uint64, mc model.Contract) error
 }
 
 type s3FileRepository interface {

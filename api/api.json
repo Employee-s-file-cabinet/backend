@@ -2,7 +2,7 @@
     "openapi": "3.0.2",
     "info": {
         "title": "Employee's cabinet",
-        "version": "0.25.1",
+        "version": "0.25.2",
         "description": "",
         "contact": {
             "name": "Yandex Practicum Students Team"
@@ -3418,8 +3418,7 @@
                 "description": "",
                 "enum": [
                     "temporary",
-                    "permanent",
-                    "self_employed"
+                    "permanent"
                 ],
                 "type": "string"
             },

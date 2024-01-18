@@ -35,10 +35,10 @@ func (s *service) ListContracts(ctx context.Context, userID uint64) ([]model.Con
 	return ctrs, nil
 }
 
-func (s *service) AddContracts(ctx context.Context, userID uint64, ed model.Contract) (uint64, error) {
+func (s *service) AddContract(ctx context.Context, userID uint64, c model.Contract) (uint64, error) {
 	const op = "user service: add contract"
 
-	id, err := s.userRepository.AddContract(ctx, userID, ed)
+	id, err := s.userRepository.AddContract(ctx, userID, c)
 	if err != nil {
 		if errors.Is(err, repoerr.ErrRecordNotFound) {
 			return 0, serr.NewError(serr.Conflict, "not added: user problem")
@@ -46,4 +46,19 @@ func (s *service) AddContracts(ctx context.Context, userID uint64, ed model.Cont
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 	return id, nil
+}
+
+func (s *service) UpdateContract(ctx context.Context, userID uint64, c model.Contract) error {
+	const op = "user service: update contract"
+
+	err := s.userRepository.UpdateContract(ctx, userID, c)
+	if err != nil {
+		switch {
+		case errors.Is(err, repoerr.ErrRecordNotAffected):
+			return serr.NewError(serr.Conflict, "not updated: user/contract problem")
+		default:
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	}
+	return nil
 }

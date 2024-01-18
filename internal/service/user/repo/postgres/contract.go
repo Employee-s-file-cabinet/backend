@@ -13,9 +13,8 @@ import (
 )
 
 const listContractsQuery = `SELECT 
-contracts.id as id, number, contract_type, work_types.title as work_type, probation_period, date_begin, date_end
+contracts.id as id, number, contract_type, work_type_id, probation_period, date_begin, date_end
 FROM contracts
-JOIN work_types ON contracts.work_type_id = work_types.id
 WHERE user_id = @user_id`
 
 func (s *storage) ListContracts(ctx context.Context, userID uint64) ([]model.Contract, error) {
@@ -54,17 +53,19 @@ func (s *storage) GetContract(ctx context.Context, userID, contractID uint64) (*
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	ed, err := pgx.CollectExactlyOneRow[contract](rows, pgx.RowToStructByNameLax[contract])
+	c, err := pgx.CollectExactlyOneRow[contract](rows, pgx.RowToStructByNameLax[contract])
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, fmt.Errorf("%s: %w", op, repoerr.ErrRecordNotFound)
+		return nil, repoerr.ErrRecordNotFound
 	}
 
-	med := convertContractToModelContract(ed)
-	return &med, nil
+	mc := convertContractToModelContract(c)
+	return &mc, nil
 }
 
-func (s *storage) AddContract(ctx context.Context, userID uint64, tr model.Contract) (uint64, error) {
+func (s *storage) AddContract(ctx context.Context, userID uint64, mc model.Contract) (uint64, error) {
 	const op = "postrgresql user storage: add contract"
+
+	c := convertModelContractToContract(mc)
 
 	row := s.DB.QueryRow(ctx, `INSERT INTO contracts
 		("user_id", "number", "contract_type", "work_type_id", "probation_period", "date_begin", "date_end")
@@ -72,21 +73,59 @@ func (s *storage) AddContract(ctx context.Context, userID uint64, tr model.Contr
 		RETURNING "id"`,
 		pgx.NamedArgs{
 			"user_id":          userID,
-			"number":           tr.Number,
-			"contract_type":    tr.ContractType,
-			"work_type_id":     tr.WorkTypeID,
-			"probation_period": tr.ProbationPeriod,
-			"date_begin":       tr.DateBegin,
-			"date_end":         tr.DateEnd,
+			"number":           c.Number,
+			"contract_type":    c.ContractType,
+			"work_type_id":     c.WorkTypeID,
+			"probation_period": c.ProbationPeriod,
+			"date_begin":       c.DateBegin,
+			"date_end":         c.DateEnd,
 		})
 
-	if err := row.Scan(&tr.ID); err != nil {
-		if strings.Contains(err.Error(), "23") && // Integrity Constraint Violation
-			strings.Contains(err.Error(), "user_id") {
-			return 0, fmt.Errorf("%s: the user does not exist: %w", op, repoerr.ErrRecordNotFound)
+	if err := row.Scan(&c.ID); err != nil {
+		if strings.Contains(err.Error(), "23") { // Integrity Constraint Violation
+			if strings.Contains(err.Error(), "user_id") {
+				return 0, fmt.Errorf("the user does not exist: %w", repoerr.ErrConflict)
+			}
+			if strings.Contains(err.Error(), "work_type_id") {
+				return 0, fmt.Errorf("the work type does not exist: %w", repoerr.ErrConflict)
+			}
 		}
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return tr.ID, nil
+	return c.ID, nil
+}
+
+func (s *storage) UpdateContract(ctx context.Context, userID uint64, mc model.Contract) error {
+	const op = "postrgresql user storage: update contract"
+
+	c := convertModelContractToContract(mc)
+
+	tag, err := s.DB.Exec(ctx, `UPDATE contracts
+		SET number=@number, contract_type=@contract_type, work_type_id=@work_type_id, 
+		probation_period=@probation_period, date_begin=@date_begin, date_end=@date_end
+		WHERE id=@id AND user_id=@user_id`,
+		pgx.NamedArgs{
+			"id":               c.ID,
+			"user_id":          userID,
+			"number":           c.Number,
+			"contract_type":    c.ContractType,
+			"work_type_id":     c.WorkTypeID,
+			"probation_period": c.ProbationPeriod,
+			"date_begin":       c.DateBegin,
+			"date_end":         c.DateEnd,
+		})
+
+	if err != nil {
+		if strings.Contains(err.Error(), "23") { // Integrity Constraint Violation
+			if strings.Contains(err.Error(), "work_type_id") {
+				return fmt.Errorf("the work type does not exist: %w", repoerr.ErrConflict)
+			}
+		}
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if tag.RowsAffected() == 0 { // it's ok for pgx
+		return repoerr.ErrRecordNotAffected
+	}
+	return nil
 }
