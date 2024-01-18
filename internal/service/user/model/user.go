@@ -22,25 +22,30 @@ type Military struct {
 	HasScan      bool
 }
 
+type PersonalDataProcessing struct {
+	HasScan bool
+}
+
 type User struct {
-	ID                  uint64
-	LastName            string
-	FirstName           string
-	MiddleName          string
-	Gender              Gender
-	DateOfBirth         time.Time
-	PlaceOfBirth        string
-	Grade               string
-	PhoneNumbers        map[string]string
-	Email               string
-	RegistrationAddress string
-	ResidentialAddress  string
-	Nationality         string
-	Insurance           Insurance
-	Taxpayer            Taxpayer
-	Position            string
-	Department          string
-	Military            Military
+	ID                     uint64
+	LastName               string
+	FirstName              string
+	MiddleName             string
+	Gender                 Gender
+	DateOfBirth            time.Time
+	PlaceOfBirth           string
+	Grade                  string
+	PhoneNumbers           map[string]string
+	Email                  string
+	RegistrationAddress    string
+	ResidentialAddress     string
+	Nationality            string
+	Insurance              Insurance
+	Taxpayer               Taxpayer
+	Position               string
+	Department             string
+	Military               Military
+	PersonalDataProcessing PersonalDataProcessing
 }
 
 // Gender represents user gender.

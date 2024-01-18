@@ -57,6 +57,9 @@ func ToAPIFullUser(u *model.User) api.FullUser {
 			Rank:        u.Military.Rank,
 			Speciality:  u.Military.Speciality,
 		},
+		PersonalDataProcessing: &api.PersonalDataProcessing{
+			HasScan: u.PersonalDataProcessing.HasScan,
+		},
 	}
 }
 

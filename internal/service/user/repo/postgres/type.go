@@ -10,26 +10,27 @@ import (
 )
 
 type user struct {
-	ID                  uint64       `db:"id"`
-	LastName            string       `db:"lastname"`
-	FirstName           string       `db:"firstname"`
-	MiddleName          string       `db:"middlename"`
-	Gender              gender       `db:"gender"`
-	DateOfBirth         time.Time    `db:"date_of_birth"`
-	PlaceOfBirth        string       `db:"place_of_birth"`
-	Grade               string       `db:"grade"`
-	PhoneNumbers        phoneNumbers `db:"phone_numbers"`
-	Email               string       `db:"work_email"`
-	RegistrationAddress string       `db:"registration_address"`
-	ResidentialAddress  string       `db:"residential_address"`
-	Nationality         string       `db:"nationality"`
-	InsuranceNumber     string       `db:"insurance_number"`
-	InsuranceHasScan    bool         `db:"insurance_has_scan"`
-	TaxpayerNumber      string       `db:"taxpayer_number"`
-	TaxpayerHasScan     bool         `db:"taxpayer_has_scan"`
-	Position            string       `db:"position"`
-	Department          string       `db:"department"`
-	Military            military
+	ID                            uint64       `db:"id"`
+	LastName                      string       `db:"lastname"`
+	FirstName                     string       `db:"firstname"`
+	MiddleName                    string       `db:"middlename"`
+	Gender                        gender       `db:"gender"`
+	DateOfBirth                   time.Time    `db:"date_of_birth"`
+	PlaceOfBirth                  string       `db:"place_of_birth"`
+	Grade                         string       `db:"grade"`
+	PhoneNumbers                  phoneNumbers `db:"phone_numbers"`
+	Email                         string       `db:"work_email"`
+	RegistrationAddress           string       `db:"registration_address"`
+	ResidentialAddress            string       `db:"residential_address"`
+	Nationality                   string       `db:"nationality"`
+	InsuranceNumber               string       `db:"insurance_number"`
+	InsuranceHasScan              bool         `db:"insurance_has_scan"`
+	TaxpayerNumber                string       `db:"taxpayer_number"`
+	TaxpayerHasScan               bool         `db:"taxpayer_has_scan"`
+	Position                      string       `db:"position"`
+	Department                    string       `db:"department"`
+	Military                      military
+	PersonalDataProcessingHasScan bool `db:"pdp_has_scan"`
 }
 
 type gender string
@@ -102,6 +103,9 @@ func convertUserToModelUser(user *user) model.User {
 			Category:     user.Military.Category,
 			Commissariat: user.Military.Commissariat,
 			HasScan:      user.Military.HasScan,
+		},
+		PersonalDataProcessing: model.PersonalDataProcessing{
+			HasScan: user.PersonalDataProcessingHasScan,
 		},
 	}
 }
