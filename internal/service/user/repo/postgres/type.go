@@ -9,17 +9,23 @@ import (
 	"github.com/Employee-s-file-cabinet/backend/internal/service/user/model"
 )
 
-type user struct {
+type shortUserInfo struct {
 	ID                            uint64       `db:"id"`
 	LastName                      string       `db:"lastname"`
 	FirstName                     string       `db:"firstname"`
 	MiddleName                    string       `db:"middlename"`
+	Position     string       `db:"position"`
+	Department   string       `db:"department"`
+	Email        string       `db:"work_email"`
+	PhoneNumbers phoneNumbers `db:"phone_numbers"`
+}
+
+type user struct {
+	shortUserInfo
 	Gender                        gender       `db:"gender"`
 	DateOfBirth                   time.Time    `db:"date_of_birth"`
 	PlaceOfBirth                  string       `db:"place_of_birth"`
 	Grade                         string       `db:"grade"`
-	PhoneNumbers                  phoneNumbers `db:"phone_numbers"`
-	Email                         string       `db:"work_email"`
 	RegistrationAddress           string       `db:"registration_address"`
 	ResidentialAddress            string       `db:"residential_address"`
 	Nationality                   string       `db:"nationality"`
@@ -27,8 +33,8 @@ type user struct {
 	InsuranceHasScan              bool         `db:"insurance_has_scan"`
 	TaxpayerNumber                string       `db:"taxpayer_number"`
 	TaxpayerHasScan               bool         `db:"taxpayer_has_scan"`
-	Position                      string       `db:"position"`
-	Department                    string       `db:"department"`
+	PositionID          uint64    `db:"position_id"`
+	DepartmentID        uint64    `db:"department_id"`
 	Military                      military
 	PersonalDataProcessingHasScan bool `db:"pdp_has_scan"`
 }
@@ -64,26 +70,25 @@ type military struct {
 	HasScan      bool   `db:"has_scan"`
 }
 
-func convertUserToModelUser(user *user) model.User {
-	var gr model.Gender
-	switch user.Gender {
-	case genderMale:
-		gr = model.GenderMale
-	case genderFemale:
-		gr = model.GenderFemale
+func convertShortUserInfoToModelShortUserInfo(info shortUserInfo) model.ShortUserInfo {
+	return model.ShortUserInfo{
+		ID:           info.ID,
+		Department:   info.Department,
+		Email:        info.Email,
+		FirstName:    info.FirstName,
+		LastName:     info.LastName,
+		MiddleName:   info.MiddleName,
+		PhoneNumbers: info.PhoneNumbers,
+		Position:     info.Position,
 	}
+}
 
-	return model.User{
-		ID:                  user.ID,
-		LastName:            user.LastName,
-		FirstName:           user.FirstName,
-		MiddleName:          user.MiddleName,
-		Gender:              gr,
+func convertUserToModelUser(user *user) model.User {
+	mu := model.User{
+		ShortUserInfo:       convertShortUserInfoToModelShortUserInfo(user.shortUserInfo),
 		DateOfBirth:         user.DateOfBirth,
 		PlaceOfBirth:        user.PlaceOfBirth,
 		Grade:               user.Grade,
-		PhoneNumbers:        user.PhoneNumbers,
-		Email:               user.Email,
 		RegistrationAddress: user.RegistrationAddress,
 		ResidentialAddress:  user.ResidentialAddress,
 		Nationality:         user.Nationality,
@@ -95,8 +100,8 @@ func convertUserToModelUser(user *user) model.User {
 			Number:  user.TaxpayerNumber,
 			HasScan: user.TaxpayerHasScan,
 		},
-		Position:   user.Position,
-		Department: user.Department,
+		PositionID:          user.PositionID,
+		DepartmentID:        user.DepartmentID,
 		Military: model.Military{
 			Rank:         user.Military.Rank,
 			Speciality:   user.Military.Speciality,
@@ -108,10 +113,51 @@ func convertUserToModelUser(user *user) model.User {
 			HasScan: user.PersonalDataProcessingHasScan,
 		},
 	}
+	switch user.Gender {
+	case genderMale:
+		mu.Gender = model.GenderMale
+	case genderFemale:
+		mu.Gender = model.GenderFemale
+	}
+	return mu
+}
+
+func convertModelUserToUser(u *model.User) user {
+	var gr gender
+	switch u.Gender {
+	case model.GenderMale:
+		gr = genderMale
+	case model.GenderFemale:
+		gr = genderFemale
+	}
+
+	return user{
+		shortUserInfo: shortUserInfo{
+			ID:           u.ID,
+			LastName:     u.LastName,
+			FirstName:    u.FirstName,
+			MiddleName:   u.MiddleName,
+			Position:     u.Position,
+			Department:   u.Department,
+			Email:        u.Email,
+			PhoneNumbers: u.PhoneNumbers,
+		},
+		Gender:              gr,
+		DateOfBirth:         u.DateOfBirth,
+		PlaceOfBirth:        u.PlaceOfBirth,
+		Grade:               u.Grade,
+		RegistrationAddress: u.RegistrationAddress,
+		ResidentialAddress:  u.ResidentialAddress,
+		Nationality:         u.Nationality,
+		InsuranceNumber:     u.InsuranceNumber,
+		TaxpayerNumber:      u.TaxpayerNumber,
+		PositionID:          u.PositionID,
+		DepartmentID:        u.DepartmentID,
+	}
 }
 
 type listUser struct {
-	user
+	shortUserInfo
 	TotalCount int `db:"total_count"`
 }
 

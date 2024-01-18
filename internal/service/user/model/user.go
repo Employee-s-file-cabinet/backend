@@ -4,6 +4,17 @@ import (
 	"time"
 )
 
+type ShortUserInfo struct {
+	ID           uint64
+	LastName     string
+	FirstName    string
+	MiddleName   string
+	Department   string
+	Position     string
+	Email        string
+	PhoneNumbers map[string]string
+}
+
 type Insurance struct {
 	Number  string
 	HasScan bool
@@ -27,19 +38,14 @@ type PersonalDataProcessing struct {
 }
 
 type User struct {
-	ID                     uint64
-	LastName               string
-	FirstName              string
-	MiddleName             string
-	Gender                 Gender
-	DateOfBirth            time.Time
-	PlaceOfBirth           string
-	Grade                  string
-	PhoneNumbers           map[string]string
-	Email                  string
-	RegistrationAddress    string
-	ResidentialAddress     string
-	Nationality            string
+	ShortUserInfo
+	Gender              gender
+	DateOfBirth         time.Time
+	PlaceOfBirth        string
+	Grade               string
+	RegistrationAddress string
+	ResidentialAddress  string
+	Nationality         string
 	Insurance              Insurance
 	Taxpayer               Taxpayer
 	Position               string
@@ -48,12 +54,12 @@ type User struct {
 	PersonalDataProcessing PersonalDataProcessing
 }
 
-// Gender represents user gender.
-type Gender string
+// gender represents user gender.
+type gender string
 
 const (
-	GenderFemale Gender = "female"
-	GenderMale   Gender = "male"
+	GenderFemale gender = "female"
+	GenderMale   gender = "male"
 )
 
 // ExpandedUser represents summary information about the user.
@@ -61,12 +67,7 @@ type ExpandedUser struct {
 	User
 	Educations []Education
 	Trainings  []Training
-	Passports  []PassportWithVisas
+	Passports  []ExpandedPassport
 	// Contracts []Contract
-	// Vacations  []Vacation
-}
-
-type PassportWithVisas struct {
-	Passport
-	Visas []Visa
+	Vacations []Vacation
 }
