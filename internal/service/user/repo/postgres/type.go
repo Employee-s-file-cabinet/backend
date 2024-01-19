@@ -1,23 +1,21 @@
 package postgresql
 
 import (
-	"database/sql/driver"
-	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/Employee-s-file-cabinet/backend/internal/service/user/model"
 )
 
 type shortUserInfo struct {
-	ID           uint64       `db:"id"`
-	LastName     string       `db:"lastname"`
-	FirstName    string       `db:"firstname"`
-	MiddleName   string       `db:"middlename"`
-	Position     string       `db:"position"`
-	Department   string       `db:"department"`
-	Email        string       `db:"work_email"`
-	PhoneNumbers phoneNumbers `db:"phone_numbers"`
+	ID                uint64 `db:"id"`
+	Department        string `db:"department"`
+	Email             string `db:"work_email"`
+	FirstName         string `db:"firstname"`
+	LastName          string `db:"lastname"`
+	MiddleName        string `db:"middlename"`
+	MobilePhoneNumber string `db:"mobile_phone_number"`
+	OfficePhoneNumber string `db:"office_phone_number"`
+	Position          string `db:"position"`
 }
 
 type user struct {
@@ -46,22 +44,6 @@ const (
 	genderMale   gender = "Мужской"
 )
 
-type phoneNumbers map[string]string
-
-func (ph *phoneNumbers) Scan(val interface{}) error {
-	switch v := val.(type) {
-	case []byte:
-		return json.Unmarshal(v, &ph)
-	case string:
-		return json.Unmarshal([]byte(v), &ph)
-	default:
-		return fmt.Errorf("unsupported type: %T", v)
-	}
-}
-func (ph *phoneNumbers) Value() (driver.Value, error) {
-	return json.Marshal(ph)
-}
-
 type military struct {
 	Rank         string `db:"rank"`
 	Speciality   string `db:"specialty"`
@@ -71,16 +53,7 @@ type military struct {
 }
 
 func convertShortUserInfoToModelShortUserInfo(info shortUserInfo) model.ShortUserInfo {
-	return model.ShortUserInfo{
-		ID:           info.ID,
-		Department:   info.Department,
-		Email:        info.Email,
-		FirstName:    info.FirstName,
-		LastName:     info.LastName,
-		MiddleName:   info.MiddleName,
-		PhoneNumbers: info.PhoneNumbers,
-		Position:     info.Position,
-	}
+	return model.ShortUserInfo(info)
 }
 
 func convertUserToModelUser(user *user) model.User {
@@ -132,16 +105,7 @@ func convertModelUserToUser(u *model.User) user {
 	}
 
 	return user{
-		shortUserInfo: shortUserInfo{
-			ID:           u.ID,
-			LastName:     u.LastName,
-			FirstName:    u.FirstName,
-			MiddleName:   u.MiddleName,
-			Position:     u.Position,
-			Department:   u.Department,
-			Email:        u.Email,
-			PhoneNumbers: u.PhoneNumbers,
-		},
+		shortUserInfo:       shortUserInfo(u.ShortUserInfo),
 		Gender:              gr,
 		DateOfBirth:         u.DateOfBirth,
 		PlaceOfBirth:        u.PlaceOfBirth,

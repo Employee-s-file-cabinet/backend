@@ -34,7 +34,7 @@ func (s *storage) Exist(ctx context.Context, userID uint64) (bool, error) {
 const (
 	getUserQuery = `SELECT 
 users.id AS id, lastname, firstname, middlename, gender,
-date_of_birth, place_of_birth, grade, phone_numbers,
+date_of_birth, place_of_birth, grade, mobile_phone_number, office_phone_number,
 work_email, registration_address, residential_address, nationality,
 insurance_number, taxpayer_number, users.department_id AS department_id, position_id,
 positions.title AS position, departments.title AS department,
@@ -228,7 +228,7 @@ func (s *storage) ListShortUserInfo(ctx context.Context, pms model.ListUsersPara
 
 	sb := pgq.
 		Select(`users.id AS id, lastname, firstname, middlename, 
-		phone_numbers, work_email, 
+		mobile_phone_number, office_phone_number, work_email, 
 		positions.title AS position, departments.title AS department, 
 		count(*) OVER() AS total_count`).
 		From("users").
@@ -282,14 +282,14 @@ func (s *storage) Add(ctx context.Context, mu model.User) (uint64, error) {
 		`INSERT INTO users 
 			(lastname, firstname, middlename, 
 			gender, date_of_birth, place_of_birth, 
-			grade, phone_numbers, work_email, 
+			grade, mobile_phone_number, office_phone_number, work_email, 
 			registration_address, residential_address, 
 			nationality, insurance_number, 
 			taxpayer_number, department_id, position_id)
 		VALUES
 			(@lastname, @firstname, @middlename, 
 			@gender, @date_of_birth, @place_of_birth, 
-			@grade, @phone_numbers, @email, 
+			@grade, @mobile_phone_number, @office_phone_number, @email, 
 			@registration_address, @residential_address, 
 			@nationality, @insurance_number, 
 			@taxpayer_number, @department_id, @position_id)
@@ -302,7 +302,8 @@ func (s *storage) Add(ctx context.Context, mu model.User) (uint64, error) {
 			"date_of_birth":        user.DateOfBirth,
 			"place_of_birth":       user.PlaceOfBirth,
 			"grade":                user.Grade,
-			"phone_numbers":        user.PhoneNumbers,
+			"mobile_phone_number":  user.MobilePhoneNumber,
+			"office_phone_number":  user.OfficePhoneNumber,
 			"email":                user.Email,
 			"registration_address": user.RegistrationAddress,
 			"residential_address":  user.ResidentialAddress,
@@ -336,7 +337,7 @@ func (s *storage) Update(ctx context.Context, mu model.User) error {
 	tag, err := s.DB.Exec(ctx, `UPDATE users
 	SET lastname = @lastname, firstname = @firstname, middlename = @middlename, 
 	gender = @gender, date_of_birth = @date_of_birth, place_of_birth = @place_of_birth, 
-	grade = @grade, phone_numbers = @phone_numbers, work_email = @email, 
+	grade = @grade, mobile_phone_number = @mobile_phone_number, office_phone_number = @office_phone_number, work_email = @email, 
 	registration_address = @registration_address, residential_address = @residential_address, 
 	nationality = @nationality, insurance_number = @insurance_number, 
 	taxpayer_number = @taxpayer_number, 
@@ -351,7 +352,8 @@ func (s *storage) Update(ctx context.Context, mu model.User) error {
 			"date_of_birth":        user.DateOfBirth,
 			"place_of_birth":       user.PlaceOfBirth,
 			"grade":                user.Grade,
-			"phone_numbers":        user.PhoneNumbers,
+			"mobile_phone_number":  user.MobilePhoneNumber,
+			"office_phone_number":  user.OfficePhoneNumber,
 			"email":                user.Email,
 			"registration_address": user.RegistrationAddress,
 			"residential_address":  user.ResidentialAddress,

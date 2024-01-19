@@ -5,14 +5,15 @@ import (
 )
 
 type ShortUserInfo struct {
-	ID           uint64
-	LastName     string
-	FirstName    string
-	MiddleName   string
-	Department   string
-	Position     string
-	Email        string
-	PhoneNumbers map[string]string
+	ID                uint64
+	Department        string
+	Email             string
+	FirstName         string
+	LastName          string
+	MiddleName        string
+	MobilePhoneNumber string
+	OfficePhoneNumber string
+	Position          string
 }
 
 type Insurance struct {
