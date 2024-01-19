@@ -6,7 +6,7 @@ DO
 $$
     BEGIN
         IF NOT EXISTS(SELECT 1 FROM pg_type WHERE typname = 'passport_type') THEN
-            create type passport_type AS ENUM ('Внутренний', 'Заграничный', 'Иностранного гражданина');
+            create type passport_type AS ENUM ('Внутренний', 'Заграничный');
         END IF;
     END
 $$;
