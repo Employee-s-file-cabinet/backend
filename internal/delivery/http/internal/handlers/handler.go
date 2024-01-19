@@ -13,6 +13,7 @@ type handler struct {
 	userService             UserService
 	authService             AuthService
 	passwordRecoveryService PasswordRecoveryService
+	statusService           StatusCheckService
 	envType                 env.Type
 	logger                  *slog.Logger
 }
@@ -20,6 +21,7 @@ type handler struct {
 func New(envType env.Type, userService UserService,
 	authService AuthService,
 	passwordRecoveryService PasswordRecoveryService,
+	statusService StatusCheckService,
 	logger *slog.Logger) *handler {
 	return &handler{
 		envType:                 envType,
@@ -27,5 +29,6 @@ func New(envType env.Type, userService UserService,
 		userService:             userService,
 		authService:             authService,
 		passwordRecoveryService: passwordRecoveryService,
+		statusService:           statusService,
 	}
 }

@@ -37,6 +37,7 @@ func New(cfg Config, envType env.Type,
 	userService handlers.UserService,
 	authService handlers.AuthService,
 	passwordRecoveryService handlers.PasswordRecoveryService,
+	statusService handlers.StatusCheckService,
 	logger *slog.Logger) (*server, error) {
 	logger = logger.With(slog.String("from", "http-server"))
 
@@ -53,7 +54,7 @@ func New(cfg Config, envType env.Type,
 		logger:     logger,
 	}
 
-	handler := handlers.New(envType, userService, authService, passwordRecoveryService, logger)
+	handler := handlers.New(envType, userService, authService, passwordRecoveryService, statusService, logger)
 
 	mux := chi.NewRouter()
 	mux.NotFound(srverr.NotFound)

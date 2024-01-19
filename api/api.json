@@ -18,6 +18,13 @@
             "get": {
                 "responses": {
                     "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Status"
+                                }
+                            }
+                        },
                         "description": "The server is up and running"
                     },
                     "default": {
@@ -32,7 +39,7 @@
                     }
                 },
                 "operationId": "health",
-                "description": "Check if the server is up and running"
+                "description": "Check if the server is up and running and return status information"
             }
         },
         "/users": {
@@ -2271,6 +2278,38 @@
                     },
                     "message": {
                         "type": "string"
+                    }
+                }
+            },
+            "Status": {
+                "required": [
+                    "version",
+                    "date",
+                    "commit",
+                    "database",
+                    "file_storage"
+                ],
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "string",
+                        "example": "v0.4.5-prod"
+                    },
+                    "date": {
+                        "type": "string",
+                        "example": "2019-08-24T14:15:22Z"
+                    },
+                    "commit": {
+                        "type": "string",
+                        "example": "fea39156f88adbf7def8b2870d6e3fe85c4e8d11"
+                    },
+                    "database": {
+                        "type": "string",
+                        "example": "OK"
+                    },
+                    "file_storage": {
+                        "type": "string",
+                        "example": "error message"
                     }
                 }
             },

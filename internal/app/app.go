@@ -15,6 +15,9 @@ import (
 	"github.com/Employee-s-file-cabinet/backend/internal/service/auth/model/password"
 	"github.com/Employee-s-file-cabinet/backend/internal/service/auth/model/token"
 	authdb "github.com/Employee-s-file-cabinet/backend/internal/service/auth/repo/postgres"
+	"github.com/Employee-s-file-cabinet/backend/internal/service/health"
+	"github.com/Employee-s-file-cabinet/backend/internal/service/health/repo/postgres"
+	"github.com/Employee-s-file-cabinet/backend/internal/service/health/repo/s3"
 	"github.com/Employee-s-file-cabinet/backend/internal/service/recovery"
 	recoverydb "github.com/Employee-s-file-cabinet/backend/internal/service/recovery/repo/postgres"
 	recoverykv "github.com/Employee-s-file-cabinet/backend/internal/service/recovery/repo/ttlmap"
@@ -68,7 +71,15 @@ func Run(ctx context.Context, cfg *config.Config, logger *slog.Logger) error {
 	smtpClient := smtp.NewMock(cfg.Mail)
 	recoveryService := recovery.NewService(recoveryDBRepo, recoveryKeyRepo, smtpClient, passVerification, cfg.Recovery)
 
-	srv, err := httpsrv.New(cfg.HTTP, cfg.EnvType, userService, authService, recoveryService, logger)
+	// create health check service
+	healthDBRepo, err := postgres.New(db)
+	if err != nil {
+		return err
+	}
+	healthFileRepo, err := s3.New(s3Client)
+	healthService := health.New(cfg.App, healthDBRepo, healthFileRepo)
+
+	srv, err := httpsrv.New(cfg.HTTP, cfg.EnvType, userService, authService, recoveryService, healthService, logger)
 	if err != nil {
 		return err
 	}

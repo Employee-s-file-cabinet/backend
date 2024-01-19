@@ -200,7 +200,7 @@ func (siw *ServerInterfaceWrapper) ListDepartments(w http.ResponseWriter, r *htt
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// Health operation middleware
+// Status operation middleware
 func (siw *ServerInterfaceWrapper) Health(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

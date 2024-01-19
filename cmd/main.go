@@ -26,6 +26,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	cfg.App = config.App{
+		Version: buildVersion,
+		Date:    buildDate,
+		Commit:  buildCommit,
+	}
+
 	logger := buildLogger(cfg.LogLevel, cfg.EnvType)
 
 	logger.Info(

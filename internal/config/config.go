@@ -21,6 +21,13 @@ type Config struct {
 	PG       repopg.Config   `env-prefix:"PG_"`
 	S3       repos3.Config   `env-prefix:"S3_"`
 	Mail     smtp.Config     `env-prefix:"MAIL_"`
+	App      App
+}
+
+type App struct {
+	Version string
+	Date    string
+	Commit  string
 }
 
 // New создаёт объект Config.
