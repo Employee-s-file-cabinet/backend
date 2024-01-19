@@ -9,5 +9,5 @@ type Config struct {
 	SecretAccessKey string        `env:"SECRET_ACCESS_KEY" env-required:"true"`
 	UseSSL          bool          `env:"USE_SSL" env-default:"false"`
 	URLExpires      time.Duration `env:"URL_EXPIRES" env-default:"12h"`
-	// Location        string `env:"LOCATION"`
+	Location        string        `env:"LOCATION" env-required:"true"`
 }

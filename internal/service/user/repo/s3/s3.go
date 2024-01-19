@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -20,6 +21,7 @@ const (
 type storage struct {
 	minioClient *minio.Client
 	urlExpires  time.Duration
+	location    string
 }
 
 func New(ctx context.Context, client *minio.Client, cfg s3.Config) (*storage, error) {
@@ -28,6 +30,7 @@ func New(ctx context.Context, client *minio.Client, cfg s3.Config) (*storage, er
 	s := &storage{
 		minioClient: client,
 		urlExpires:  cfg.URLExpires,
+		location:    cfg.Location,
 	}
 
 	// check to see if we already own the bucket
@@ -112,5 +115,7 @@ func (s *storage) PresignedURL(ctx context.Context, prefix, name string) (string
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
 
-	return url.String(), nil
+	retURL := strings.Replace(url.String(), s.minioClient.EndpointURL().String(), s.location, 1)
+
+	return retURL, nil
 }
