@@ -360,10 +360,7 @@ func (b AddPassportJSONRequestBody) Validate(ctx context.Context, validator *vld
 		vld.ComparableProperty[PassportType]("type",
 			b.Type,
 			it.IsNotBlankComparable[PassportType](),
-			it.IsOneOf[PassportType](
-				External,
-				Internal,
-				Foreigners)),
+			it.IsOneOf[PassportType](National, International)),
 	)
 }
 
@@ -385,10 +382,7 @@ func (b PatchPassportJSONRequestBody) Validate(ctx context.Context, validator *v
 			At(vld.PropertyName("type")).
 			Then(vld.NilComparable(b.Type,
 				it.IsNotBlankComparable[PassportType](),
-				it.IsOneOf[PassportType](
-					External,
-					Internal,
-					Foreigners))),
+				it.IsOneOf[PassportType](National, International))),
 	)
 }
 
@@ -406,10 +400,7 @@ func (b PutPassportJSONRequestBody) Validate(ctx context.Context, validator *vld
 		vld.ComparableProperty[PassportType]("type",
 			b.Type,
 			it.IsNotBlankComparable[PassportType](),
-			it.IsOneOf[PassportType](
-				External,
-				Internal,
-				Foreigners)),
+			it.IsOneOf[PassportType](National, International)),
 	)
 }
 
@@ -422,13 +413,9 @@ func (b AddVisaJSONRequestBody) Validate(ctx context.Context, validator *vld.Val
 		vld.StringProperty("number", b.Number,
 			it.IsNotBlank(),
 			it.HasLengthBetween(2, 50)),
-		vld.ComparableProperty[VisaNumberEntries]("number_entries",
-			b.NumberEntries,
-			it.IsNotBlankComparable[VisaNumberEntries](),
-			it.IsOneOf[VisaNumberEntries](
-				N1,
-				N2,
-				Mult)),
+		vld.StringProperty("type", b.Type,
+			it.IsNotBlank(),
+			it.HasLengthBetween(1, 50)),
 	)
 }
 
@@ -445,14 +432,11 @@ func (b PatchVisaJSONRequestBody) Validate(ctx context.Context, validator *vld.V
 			Then(vld.NilString(b.Number,
 				it.IsNotBlank(),
 				it.HasLengthBetween(2, 50))),
-		vld.When(b.NumberEntries != nil).
-			At(vld.PropertyName("number_entries")).
-			Then(vld.NilComparable(b.NumberEntries,
-				it.IsNotBlankComparable[VisaNumberEntries](),
-				it.IsOneOf[VisaNumberEntries](
-					N1,
-					N2,
-					Mult))),
+		vld.When(b.Type != nil).
+			At(vld.PropertyName("type")).
+			Then(vld.NilString(b.Type,
+				it.IsNotBlank(),
+				it.HasLengthBetween(1, 50))),
 	)
 }
 
@@ -465,13 +449,10 @@ func (b PutVisaJSONRequestBody) Validate(ctx context.Context, validator *vld.Val
 		vld.StringProperty("number", b.Number,
 			it.IsNotBlank(),
 			it.HasLengthBetween(2, 50)),
-		vld.ComparableProperty[VisaNumberEntries]("number_entries",
-			b.NumberEntries,
-			it.IsNotBlankComparable[VisaNumberEntries](),
-			it.IsOneOf[VisaNumberEntries](
-				N1,
-				N2,
-				Mult)),
+		vld.StringProperty("type",
+			b.Type,
+			it.IsNotBlank(),
+			it.HasLengthBetween(1, 50)),
 	)
 }
 

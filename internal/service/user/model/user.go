@@ -68,7 +68,8 @@ type ExpandedUser struct {
 	User
 	Educations []Education
 	Trainings  []Training
-	Passports  []ExpandedPassport
+	Passports  []Passport
+	Visas      []Visa
 	Contracts  []Contract
 	Vacations  []Vacation
 }

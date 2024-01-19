@@ -1403,7 +1403,7 @@
                 }
             ]
         },
-        "/users/{user_id}/passports/{passport_id}/visas": {
+        "/users/{user_id}/visas": {
             "get": {
                 "responses": {
                     "200": {
@@ -1485,18 +1485,10 @@
                     },
                     "in": "path",
                     "required": true
-                },
-                {
-                    "name": "passport_id",
-                    "schema": {
-                        "type": "integer"
-                    },
-                    "in": "path",
-                    "required": true
                 }
             ]
         },
-        "/users/{user_id}/passports/{passport_id}/visas/{visa_id}": {
+        "/users/{user_id}/visas/{visa_id}": {
             "get": {
                 "responses": {
                     "200": {
@@ -1623,14 +1615,6 @@
             "parameters": [
                 {
                     "name": "user_id",
-                    "schema": {
-                        "type": "integer"
-                    },
-                    "in": "path",
-                    "required": true
-                },
-                {
-                    "name": "passport_id",
                     "schema": {
                         "type": "integer"
                     },
@@ -2040,31 +2024,12 @@
         },
         "/users/{user_id}/passports/{passport_id}": {
             "get": {
-                "parameters": [
-                    {
-                        "name": "expanded",
-                        "description": "whether to return visas along with user passport data (default - no)",
-                        "schema": {
-                            "default": false,
-                            "type": "boolean"
-                        },
-                        "in": "query",
-                        "required": false
-                    }
-                ],
                 "responses": {
                     "200": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "oneOf": [
-                                        {
-                                            "$ref": "#/components/schemas/GetPassportResponse"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/GetExpandedPassportResponse"
-                                        }
-                                    ]
+                                    "$ref": "#/components/schemas/GetPassportResponse"
                                 },
                                 "examples": {
                                     "Internal passport example": {
@@ -2348,7 +2313,7 @@
                     "has_scan": {
                         "description": "",
                         "type": "boolean",
-                        "readOnly": true
+                        "readOnly": false
                     }
                 },
                 "example": {
@@ -2687,7 +2652,7 @@
                     "issued_state",
                     "valid_to",
                     "valid_from",
-                    "number_entries"
+                    "type"
                 ],
                 "type": "object",
                 "properties": {
@@ -2713,10 +2678,6 @@
                         "description": "",
                         "type": "string"
                     },
-                    "number_entries": {
-                        "$ref": "#/components/schemas/VisaNumberEntries",
-                        "description": ""
-                    },
                     "id": {
                         "description": "",
                         "type": "integer"
@@ -2725,6 +2686,12 @@
                         "description": "",
                         "type": "boolean",
                         "readOnly": false
+                    },
+                    "type": {
+                        "description": "",
+                        "maxLength": 50,
+                        "minLength": 1,
+                        "type": "string"
                     }
                 },
                 "example": {
@@ -2734,7 +2701,7 @@
                     "issued_state": "Spain",
                     "valid_to": "2017-10-22",
                     "valid_from": "2017-09-08",
-                    "number_entries": "1"
+                    "type": "C1"
                 }
             },
             "GetPassportResponse": {
@@ -2752,37 +2719,6 @@
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/Visa"
-                    }
-                ]
-            },
-            "ExpandedPassport": {
-                "description": "",
-                "type": "object",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/Passport"
-                    },
-                    {
-                        "required": [
-                            "visas"
-                        ],
-                        "properties": {
-                            "visas": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/Visa"
-                                }
-                            }
-                        }
-                    }
-                ]
-            },
-            "GetExpandedPassportResponse": {
-                "description": "",
-                "type": "object",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/ExpandedPassport"
                     }
                 ]
             },
@@ -3121,16 +3057,6 @@
                     }
                 ]
             },
-            "PassportType": {
-                "description": "",
-                "default": "internal",
-                "enum": [
-                    "internal",
-                    "external",
-                    "foreigners"
-                ],
-                "type": "string"
-            },
             "AddPassportRequest": {
                 "description": "",
                 "required": [
@@ -3179,7 +3105,7 @@
                     "issued_by",
                     "type",
                     "has_scan",
-                    "visas_count"
+                    "Citizenship"
                 ],
                 "type": "object",
                 "properties": {
@@ -3213,9 +3139,9 @@
                         "type": "boolean",
                         "readOnly": false
                     },
-                    "visas_count": {
+                    "Citizenship": {
                         "description": "",
-                        "type": "integer"
+                        "type": "string"
                     }
                 },
                 "example": {
@@ -3429,15 +3355,6 @@
                     "number": "145678"
                 }
             },
-            "VisaNumberEntries": {
-                "description": "",
-                "enum": [
-                    "1",
-                    "2",
-                    "mult"
-                ],
-                "type": "string"
-            },
             "PutVisaRequest": {
                 "description": "",
                 "required": [
@@ -3445,7 +3362,7 @@
                     "issued_state",
                     "valid_to",
                     "valid_from",
-                    "number_entries"
+                    "type"
                 ],
                 "type": "object",
                 "properties": {
@@ -3471,9 +3388,11 @@
                         "description": "",
                         "type": "string"
                     },
-                    "number_entries": {
-                        "$ref": "#/components/schemas/VisaNumberEntries",
-                        "description": ""
+                    "type": {
+                        "description": "",
+                        "maxLength": 50,
+                        "minLength": 1,
+                        "type": "string"
                     }
                 },
                 "example": {
@@ -3481,7 +3400,7 @@
                     "issued_state": "Spain",
                     "valid_to": "2017-10-22",
                     "valid_from": "2017-09-08",
-                    "number_entries": "1"
+                    "type": "C1"
                 }
             },
             "PatchVisaRequest": {
@@ -3511,59 +3430,15 @@
                         "description": "",
                         "type": "string"
                     },
-                    "number_entries": {
-                        "$ref": "#/components/schemas/VisaNumberEntries",
-                        "description": ""
+                    "type": {
+                        "description": "",
+                        "maxLength": 50,
+                        "minLength": 1,
+                        "type": "string"
                     }
                 },
                 "example": {
-                    "number_entries": "2"
-                }
-            },
-            "AddVisaRequest": {
-                "description": "",
-                "required": [
-                    "number",
-                    "issued_state",
-                    "valid_to",
-                    "valid_from",
-                    "number_entries"
-                ],
-                "type": "object",
-                "properties": {
-                    "number": {
-                        "description": "",
-                        "maxLength": 50,
-                        "minLength": 2,
-                        "type": "string"
-                    },
-                    "issued_state": {
-                        "description": "",
-                        "maxLength": 50,
-                        "minLength": 2,
-                        "type": "string"
-                    },
-                    "valid_to": {
-                        "format": "date",
-                        "description": "",
-                        "type": "string"
-                    },
-                    "valid_from": {
-                        "format": "date",
-                        "description": "",
-                        "type": "string"
-                    },
-                    "number_entries": {
-                        "$ref": "#/components/schemas/VisaNumberEntries",
-                        "description": ""
-                    }
-                },
-                "example": {
-                    "number": "33592222",
-                    "issued_state": "Spain",
-                    "valid_to": "2017-10-22",
-                    "valid_from": "2017-09-08",
-                    "number_entries": "1"
+                    "type": "C2"
                 }
             },
             "Gender": {
@@ -4474,7 +4349,8 @@
                             "vacations",
                             "educations",
                             "trainings",
-                            "id"
+                            "id",
+                            "visas"
                         ],
                         "type": "object",
                         "properties": {
@@ -4486,7 +4362,7 @@
                                 "description": "",
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/schemas/ExpandedPassport"
+                                    "$ref": "#/components/schemas/Passport"
                                 }
                             },
                             "contracts": {
@@ -4516,6 +4392,13 @@
                                 "items": {
                                     "$ref": "#/components/schemas/Training"
                                 }
+                            },
+                            "visas": {
+                                "description": "",
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Visa"
+                                }
                             }
                         }
                     }
@@ -4536,11 +4419,11 @@
                             "number": "AZ0001055",
                             "issued_date": "2010-05-23",
                             "issued_by": "TOSHKENT SHAHAR IIBB",
-                            "type": "foreigners",
-                            "has_scan": true,
-                            "visas_count": 1
+                            "type": "international",
+                            "has_scan": true
                         }
                     ],
+                    "visas": [],
                     "contracts": [
                         {
                             "date_from": "2013-08-01",
@@ -4812,6 +4695,63 @@
                     "upload_at": "2018-02-10T09:30Z",
                     "type": "baby_birth",
                     "description": "not verified by social services"
+                }
+            },
+            "PassportType": {
+                "description": "",
+                "default": "national",
+                "enum": [
+                    "international",
+                    "national"
+                ],
+                "type": "string"
+            },
+            "AddVisaRequest": {
+                "description": "",
+                "required": [
+                    "number",
+                    "issued_state",
+                    "valid_to",
+                    "valid_from",
+                    "type"
+                ],
+                "type": "object",
+                "properties": {
+                    "number": {
+                        "description": "",
+                        "maxLength": 50,
+                        "minLength": 2,
+                        "type": "string"
+                    },
+                    "issued_state": {
+                        "description": "",
+                        "maxLength": 50,
+                        "minLength": 2,
+                        "type": "string"
+                    },
+                    "valid_to": {
+                        "format": "date",
+                        "description": "",
+                        "type": "string"
+                    },
+                    "valid_from": {
+                        "format": "date",
+                        "description": "",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "",
+                        "maxLength": 50,
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "number": "33592222",
+                    "issued_state": "Spain",
+                    "valid_to": "2017-10-22",
+                    "valid_from": "2017-09-08",
+                    "type": "C1"
                 }
             }
         },

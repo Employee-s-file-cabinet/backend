@@ -75,7 +75,7 @@ func ToAPIGetExpandedUserResponse(u *model.ExpandedUser) api.GetExpandedUserResp
 	expUser.Military = nil
 	expUser.Educations = ToAPIListEducations(u.Educations)
 	expUser.Trainings = ToAPIListTrainings(u.Trainings)
-	expUser.Passports = ToAPIExpandedPassports(u.Passports)
+	expUser.Passports = ToAPIPassports(u.Passports)
 	expUser.Vacations = ToAPIListVacations(u.Vacations)
 	expUser.Contracts = ToAPIListContracts(u.Contracts)
 

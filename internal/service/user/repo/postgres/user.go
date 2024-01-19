@@ -169,9 +169,9 @@ func (s *storage) GetExpandedUser(ctx context.Context, userID uint64) (*model.Ex
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	expUser.Passports = make([]model.ExpandedPassport, len(psps))
+	expUser.Passports = make([]model.Passport, len(psps))
 	for i, psp := range psps {
-		expUser.Passports[i].Passport = convertPassportToModelPassport(psp)
+		expUser.Passports[i] = convertPassportToModelPassport(psp)
 	}
 
 	// get visas
@@ -183,13 +183,9 @@ func (s *storage) GetExpandedUser(ctx context.Context, userID uint64) (*model.Ex
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	for i := 0; i < len(expUser.Passports); i++ {
-		for j := 0; j < len(visas); j++ {
-			if visas[j].PassportID == expUser.Passports[i].ID {
-				expUser.Passports[i].Visas = append(expUser.Passports[i].Visas, convertVisaToModelVisa(visas[j]))
-				expUser.Passports[i].VisasCount++
-			}
-		}
+	expUser.Visas = make([]model.Visa, len(visas))
+	for i, v := range visas {
+		expUser.Visas[i] = convertVisaToModelVisa(v)
 	}
 
 	// get vacations

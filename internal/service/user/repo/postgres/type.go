@@ -154,94 +154,89 @@ func convertTrainingToModelTraining(tr training) model.Training {
 }
 
 type passport struct {
-	ID         uint64       `db:"id"`
-	IssuedBy   string       `db:"issued_by"`
-	IssuedDate time.Time    `db:"issued_date"`
-	Number     string       `db:"number"`
-	Type       passportType `db:"type"`
-	VisasCount uint         `db:"visas_count"`
-	HasScan    bool         `db:"has_scan"`
+	ID          uint64       `db:"id"`
+	Citizenship string       `db:"Citizenship"`
+	IssuedBy    string       `db:"issued_by"`
+	IssuedDate  time.Time    `db:"issued_date"`
+	Number      string       `db:"number"`
+	Type        passportType `db:"type"`
+	HasScan     bool         `db:"has_scan"`
 }
 
 type passportType string
 
 const (
-	passportTypeExternal   passportType = "Заграничный"
-	passportTypeForeigners passportType = "Иностранного гражданина"
-	passportTypeInternal   passportType = "Внутренний"
+	passportTypeInternational passportType = "Заграничный"
+	passportTypeNational      passportType = "Внутренний"
 )
 
 func convertPassportToModelPassport(p passport) model.Passport {
 	var pt model.PassportType
 	switch p.Type {
-	case passportTypeExternal:
-		pt = model.PassportTypeExternal
-	case passportTypeInternal:
-		pt = model.PassportTypeInternal
-	case passportTypeForeigners:
-		pt = model.PassportTypeForeigners
+	case passportTypeInternational:
+		pt = model.PassportTypeInternational
+	case passportTypeNational:
+		pt = model.PassportTypeNational
 	}
 
 	return model.Passport{
-		ID:         p.ID,
-		IssuedBy:   p.IssuedBy,
-		IssuedDate: p.IssuedDate,
-		Number:     p.Number,
-		Type:       pt,
-		VisasCount: p.VisasCount,
-		HasScan:    p.HasScan,
+		ID:          p.ID,
+		Citizenship: p.Citizenship,
+		IssuedBy:    p.IssuedBy,
+		IssuedDate:  p.IssuedDate,
+		Number:      p.Number,
+		Type:        pt,
+		HasScan:     p.HasScan,
 	}
 }
 
 func convertModelPassportToPassport(mp model.Passport) passport {
 	var t passportType
 	switch mp.Type {
-	case model.PassportTypeExternal:
-		t = passportTypeExternal
-	case model.PassportTypeInternal:
-		t = passportTypeInternal
-	case model.PassportTypeForeigners:
-		t = passportTypeForeigners
+	case model.PassportTypeInternational:
+		t = passportTypeInternational
+	case model.PassportTypeNational:
+		t = passportTypeNational
 	}
 
 	return passport{
-		ID:         mp.ID,
-		IssuedBy:   mp.IssuedBy,
-		IssuedDate: mp.IssuedDate,
-		Number:     mp.Number,
-		Type:       t,
+		ID:          mp.ID,
+		Citizenship: mp.Citizenship,
+		IssuedBy:    mp.IssuedBy,
+		IssuedDate:  mp.IssuedDate,
+		Number:      mp.Number,
+		Type:        t,
 	}
 }
 
 type visa struct {
-	ID            uint64                  `db:"id"`
-	PassportID    uint64                  `db:"passport_id"`
-	Number        string                  `db:"number"`
-	IssuedState   string                  `db:"issued_state"`
-	ValidTo       time.Time               `db:"valid_to"`
-	ValidFrom     time.Time               `db:"valid_from"`
-	NumberEntries model.VisaNumberEntries `db:"number_entries"`
+	ID          uint64    `db:"id"`
+	Number      string    `db:"number"`
+	Type        string    `db:"type"`
+	IssuedState string    `db:"issued_state"`
+	ValidTo     time.Time `db:"valid_to"`
+	ValidFrom   time.Time `db:"valid_from"`
 }
 
 func convertVisaToModelVisa(v visa) model.Visa {
 	return model.Visa{
-		ID:            v.ID,
-		Number:        v.Number,
-		IssuedState:   v.IssuedState,
-		ValidTo:       v.ValidTo,
-		ValidFrom:     v.ValidFrom,
-		NumberEntries: v.NumberEntries,
+		ID:          v.ID,
+		Number:      v.Number,
+		Type:        model.VisaType(v.Type),
+		IssuedState: v.IssuedState,
+		ValidTo:     v.ValidTo,
+		ValidFrom:   v.ValidFrom,
 	}
 }
 
 func convertModelVisaToVisa(mv model.Visa) visa {
 	return visa{
-		ID:            mv.ID,
-		Number:        mv.Number,
-		IssuedState:   mv.IssuedState,
-		ValidTo:       mv.ValidTo,
-		ValidFrom:     mv.ValidFrom,
-		NumberEntries: mv.NumberEntries,
+		ID:          mv.ID,
+		Number:      mv.Number,
+		Type:        string(mv.Type),
+		IssuedState: mv.IssuedState,
+		ValidTo:     mv.ValidTo,
+		ValidFrom:   mv.ValidFrom,
 	}
 }
 

@@ -27,9 +27,8 @@ const (
 
 // Defines values for PassportType.
 const (
-	External   PassportType = "external"
-	Foreigners PassportType = "foreigners"
-	Internal   PassportType = "internal"
+	International PassportType = "international"
+	National      PassportType = "national"
 )
 
 // Defines values for ScanType.
@@ -47,13 +46,6 @@ const (
 	ScanTypeTaxpayer               ScanType = "taxpayer"
 	ScanTypeTraining               ScanType = "training"
 	ScanTypeWorkPermit             ScanType = "work_permit"
-)
-
-// Defines values for VisaNumberEntries.
-const (
-	Mult VisaNumberEntries = "mult"
-	N1   VisaNumberEntries = "1"
-	N2   VisaNumberEntries = "2"
 )
 
 // Defines values for WorkingModel.
@@ -146,11 +138,11 @@ type AddVacationRequest struct {
 
 // AddVisaRequest defines model for AddVisaRequest.
 type AddVisaRequest struct {
-	IssuedState   string             `json:"issued_state"`
-	Number        string             `json:"number"`
-	NumberEntries VisaNumberEntries  `json:"number_entries"`
-	ValidFrom     openapi_types.Date `json:"valid_from"`
-	ValidTo       openapi_types.Date `json:"valid_to"`
+	IssuedState string             `json:"issued_state"`
+	Number      string             `json:"number"`
+	Type        string             `json:"type"`
+	ValidFrom   openapi_types.Date `json:"valid_from"`
+	ValidTo     openapi_types.Date `json:"valid_to"`
 }
 
 // ChangePasswordRequest defines model for ChangePasswordRequest.
@@ -230,11 +222,11 @@ type GetExpandedPassportResponse = ExpandedPassport
 // GetExpandedUserResponse defines model for GetExpandedUserResponse.
 type GetExpandedUserResponse struct {
 	GetUserResponse
-	Contracts  []Contract         `json:"contracts"`
-	Educations []Education        `json:"educations"`
-	Passports  []ExpandedPassport `json:"passports"`
-	Trainings  []Training         `json:"trainings"`
-	Vacations  []Vacation         `json:"vacations"`
+	Contracts  []Contract  `json:"contracts"`
+	Educations []Education `json:"educations"`
+	Passports  []Passport  `json:"passports"`
+	Trainings  []Training  `json:"trainings"`
+	Vacations  []Vacation  `json:"vacations"`
 }
 
 // GetPassportResponse defines model for GetPassportResponse.
@@ -445,11 +437,11 @@ type PatchVacationRequest struct {
 
 // PatchVisaRequest defines model for PatchVisaRequest.
 type PatchVisaRequest struct {
-	IssuedState   *string             `json:"issued_state,omitempty"`
-	Number        *string             `json:"number,omitempty"`
-	NumberEntries *VisaNumberEntries  `json:"number_entries,omitempty"`
-	ValidFrom     *openapi_types.Date `json:"valid_from,omitempty"`
-	ValidTo       *openapi_types.Date `json:"valid_to,omitempty"`
+	IssuedState *string             `json:"issued_state,omitempty"`
+	Number      *string             `json:"number,omitempty"`
+	Type        *string             `json:"type,omitempty"`
+	ValidFrom   *openapi_types.Date `json:"valid_from,omitempty"`
+	ValidTo     *openapi_types.Date `json:"valid_to,omitempty"`
 }
 
 // PersonalDataProcessing defines model for PersonalDataProcessing.
@@ -545,11 +537,11 @@ type PutVacationRequest struct {
 
 // PutVisaRequest defines model for PutVisaRequest.
 type PutVisaRequest struct {
-	IssuedState   string             `json:"issued_state"`
-	Number        string             `json:"number"`
-	NumberEntries VisaNumberEntries  `json:"number_entries"`
-	ValidFrom     openapi_types.Date `json:"valid_from"`
-	ValidTo       openapi_types.Date `json:"valid_to"`
+	IssuedState string             `json:"issued_state"`
+	Number      string             `json:"number"`
+	Type        string             `json:"type"`
+	ValidFrom   openapi_types.Date `json:"valid_from"`
+	ValidTo     openapi_types.Date `json:"valid_to"`
 }
 
 // Scan defines model for Scan.
@@ -612,21 +604,18 @@ type Vacation struct {
 
 // Visa defines model for Visa.
 type Visa struct {
-	HasScan       bool               `json:"has_scan"`
-	ID            uint64             `json:"id"`
-	IssuedState   string             `json:"issued_state"`
-	Number        string             `json:"number"`
-	NumberEntries VisaNumberEntries  `json:"number_entries"`
-	ValidFrom     openapi_types.Date `json:"valid_from"`
-	ValidTo       openapi_types.Date `json:"valid_to"`
+	HasScan     bool               `json:"has_scan"`
+	ID          uint64             `json:"id"`
+	IssuedState string             `json:"issued_state"`
+	Number      string             `json:"number"`
+	Type        string             `json:"type"`
+	ValidFrom   openapi_types.Date `json:"valid_from"`
+	ValidTo     openapi_types.Date `json:"valid_to"`
 }
-
-// VisaNumberEntries defines model for VisaNumberEntries.
-type VisaNumberEntries string
 
 // WorkPermit defines model for WorkPermit.
 type WorkPermit struct {
-	HasScan   *bool              `json:"has_scan,omitempty"`
+	HasScan   bool               `json:"has_scan"`
 	Number    string             `json:"number"`
 	ValidFrom openapi_types.Date `json:"valid_from"`
 	ValidTo   openapi_types.Date `json:"valid_to"`
@@ -662,12 +651,6 @@ type ListUsersParamsSortBy string
 // GetUserParams defines parameters for GetUser.
 type GetUserParams struct {
 	// Expanded whether to return detailed data on passports, contracts, vacations, etc. along with user data (default - no)
-	Expanded *bool `form:"expanded,omitempty" json:"expanded,omitempty"`
-}
-
-// GetPassportParams defines parameters for GetPassport.
-type GetPassportParams struct {
-	// Expanded whether to return visas along with user passport data (default - no)
 	Expanded *bool `form:"expanded,omitempty" json:"expanded,omitempty"`
 }
 
