@@ -13,12 +13,13 @@ import (
 )
 
 const listContractsQuery = `SELECT 
-contracts.id as id, number, contract_type, work_type_id, probation_period, date_begin, date_end
+contracts.id as id, number, contract_type, work_type_id, probation_period, date_begin, date_end,
+(SELECT COUNT(*)>0 FROM scans WHERE scans.document_id=contracts.id AND scans.type='Трудовой договор') AS has_scan
 FROM contracts
 WHERE user_id = @user_id`
 
 func (s *storage) ListContracts(ctx context.Context, userID uint64) ([]model.Contract, error) {
-	const op = "postrgresql user storage: list contracts"
+	const op = "postgresql user storage: list contracts"
 
 	rows, err := s.DB.Query(ctx, listContractsQuery, pgx.NamedArgs{"user_id": userID})
 	if err != nil {
@@ -38,12 +39,13 @@ func (s *storage) ListContracts(ctx context.Context, userID uint64) ([]model.Con
 }
 
 func (s *storage) GetContract(ctx context.Context, userID, contractID uint64) (*model.Contract, error) {
-	const op = "postrgresql user storage: get contract"
+	const op = "postgresql user storage: get contract"
 
 	//стр-ра
 	rows, err := s.DB.Query(ctx,
 		`SELECT 
-		id, number, contract_type, work_type_id, probation_period, date_begin, date_end
+		id, number, contract_type, work_type_id, probation_period, date_begin, date_end,
+		(SELECT COUNT(*)>0 FROM scans WHERE user_id=@user_id AND scans.document_id=contracts.id AND scans.type='Трудовой договор') AS has_scan
 		FROM contracts
 		WHERE id = @contract_id AND user_id = @user_id`,
 		pgx.NamedArgs{
@@ -63,7 +65,7 @@ func (s *storage) GetContract(ctx context.Context, userID, contractID uint64) (*
 }
 
 func (s *storage) AddContract(ctx context.Context, userID uint64, mc model.Contract) (uint64, error) {
-	const op = "postrgresql user storage: add contract"
+	const op = "postgresql user storage: add contract"
 
 	c := convertModelContractToContract(mc)
 
@@ -97,13 +99,13 @@ func (s *storage) AddContract(ctx context.Context, userID uint64, mc model.Contr
 }
 
 func (s *storage) UpdateContract(ctx context.Context, userID uint64, mc model.Contract) error {
-	const op = "postrgresql user storage: update contract"
+	const op = "postgresql user storage: update contract"
 
 	c := convertModelContractToContract(mc)
 
 	tag, err := s.DB.Exec(ctx, `UPDATE contracts
-		SET number=@number, contract_type=@contract_type, work_type_id=@work_type_id, 
-		probation_period=@probation_period, date_begin=@date_begin, date_end=@date_end
+		SET number = @number, contract_type = @contract_type, work_type_id = @work_type_id, 
+		probation_period = @probation_period, date_begin = @date_begin, date_end = @date_end
 		WHERE id=@id AND user_id=@user_id`,
 		pgx.NamedArgs{
 			"id":               c.ID,

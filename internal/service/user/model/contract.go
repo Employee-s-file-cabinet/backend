@@ -6,7 +6,7 @@ type Contract struct {
 	ID              uint64
 	Number          string
 	HasScan         bool
-	ContractType    contractType
+	Type            contractType
 	WorkTypeID      uint64
 	WorkType        string
 	ProbationPeriod *uint

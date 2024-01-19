@@ -20,9 +20,9 @@ func FromAPIAddContractRequest(req api.AddContractJSONRequestBody) model.Contrac
 	}
 	switch req.Type {
 	case api.Permanent:
-		mc.ContractType = model.ContractTypePermanent
+		mc.Type = model.ContractTypePermanent
 	case api.Temporary:
-		mc.ContractType = model.ContractTypeTemporary
+		mc.Type = model.ContractTypeTemporary
 	}
 	return mc
 }
@@ -41,9 +41,9 @@ func FromAPIPutContractRequest(contractID uint64, req api.PutContractJSONRequest
 	}
 	switch req.Type {
 	case api.Permanent:
-		mc.ContractType = model.ContractTypePermanent
+		mc.Type = model.ContractTypePermanent
 	case api.Temporary:
-		mc.ContractType = model.ContractTypeTemporary
+		mc.Type = model.ContractTypeTemporary
 	}
 	return mc
 }
@@ -67,11 +67,12 @@ func toAPIContract(med model.Contract) api.Contract {
 		WorkTypeID:      med.WorkTypeID,
 		ProbationPeriod: med.ProbationPeriod,
 		DateFrom:        types.Date{Time: med.DateBegin},
+		HasScan:         &med.HasScan,
 	}
 	if med.DateEnd != nil {
 		resp.DateTo = &types.Date{Time: *med.DateEnd}
 	}
-	switch med.ContractType {
+	switch med.Type {
 	case model.ContractTypePermanent:
 		resp.Type = api.Permanent
 	case model.ContractTypeTemporary:

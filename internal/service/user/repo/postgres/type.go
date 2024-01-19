@@ -405,6 +405,7 @@ type contract struct {
 	ProbationPeriod *uint        `db:"probation_period"`
 	DateBegin       time.Time    `db:"date_begin"`
 	DateEnd         *time.Time   `db:"date_end"`
+	HasScan         bool         `db:"has_scan"`
 }
 
 type contractType string
@@ -422,13 +423,14 @@ func convertContractToModelContract(c contract) model.Contract {
 		ProbationPeriod: c.ProbationPeriod,
 		DateBegin:       c.DateBegin,
 		DateEnd:         c.DateEnd,
+		HasScan:         c.HasScan,
 	}
 
 	switch c.ContractType {
 	case contractTypePermanent:
-		mc.ContractType = model.ContractTypePermanent
+		mc.Type = model.ContractTypePermanent
 	case contractTypeTemporary:
-		mc.ContractType = model.ContractTypeTemporary
+		mc.Type = model.ContractTypeTemporary
 	}
 
 	return mc
@@ -444,7 +446,7 @@ func convertModelContractToContract(mc model.Contract) contract {
 		DateEnd:         mc.DateEnd,
 	}
 
-	switch mc.ContractType {
+	switch mc.Type {
 	case model.ContractTypePermanent:
 		c.ContractType = contractTypePermanent
 	case model.ContractTypeTemporary:
