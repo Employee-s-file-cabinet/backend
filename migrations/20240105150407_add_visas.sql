@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS "visas"
     "id"                   bigserial PRIMARY KEY,
     "user_id"              bigint  NOT NULL,
     "number"               varchar    NOT NULL,
-    "issued_state"         varchar    NOT NULL,
+    "issued_state"         varchar,
     "valid_to"             date NOT NULL,
     "valid_from"           date NOT NULL,
     "type"                 varchar NOT NULL,

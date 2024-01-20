@@ -46,7 +46,6 @@ type User struct {
 	Grade                  string
 	RegistrationAddress    string
 	ResidentialAddress     string
-	Nationality            string
 	Insurance              Insurance
 	Taxpayer               Taxpayer
 	PositionID             uint64

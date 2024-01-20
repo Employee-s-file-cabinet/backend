@@ -16,7 +16,7 @@ func (s *storage) ListPassports(ctx context.Context, userID uint64) ([]model.Pas
 	const op = "postrgresql user storage: list passports"
 
 	rows, err := s.DB.Query(ctx,
-		`SELECT id, number, citizenship, type, issued_date, issued_by,		
+		`SELECT id, number, citizenship, type, issued_date, issued_by, issued_by_code,		
 		(SELECT COUNT(*)>0 FROM scans WHERE scans.document_id=passports.id AND scans.type='Паспорт') AS has_scan
 		FROM passports
 		WHERE passports.user_id = @user_id`,
@@ -41,7 +41,7 @@ func (s *storage) GetPassport(ctx context.Context, userID, passportID uint64) (*
 	const op = "postrgresql user storage: get passport"
 
 	rows, err := s.DB.Query(ctx,
-		`SELECT id, number, citizenship, type, issued_date, issued_by,
+		`SELECT id, number, citizenship, type, issued_date, issued_by, issued_by_code,
 		(SELECT COUNT(*)>0 FROM scans WHERE user_id=@user_id AND scans.document_id=passports.id AND scans.type='Паспорт') AS has_scan
 		FROM passports
 		WHERE id = @passport_id AND user_id = @user_id`,
@@ -67,16 +67,17 @@ func (s *storage) AddPassport(ctx context.Context, userID uint64, mp model.Passp
 	p := convertModelPassportToPassport(mp)
 
 	row := s.DB.QueryRow(ctx, `INSERT INTO passports
-		("user_id", "number", "citizenship" "type", "issued_date", "issued_by")
-		VALUES (@user_id, @number, @type, @issued_date, @issued_by)
+		("user_id", "number", "citizenship" "type", "issued_date", "issued_by", "issued_by_code")
+		VALUES (@user_id, @number, @type, @issued_date, @issued_by, @issued_by_code)
 		RETURNING "id"`,
 		pgx.NamedArgs{
-			"user_id":     userID,
-			"number":      p.Number,
-			"citizenship": p.Citizenship,
-			"type":        p.Type,
-			"issued_date": p.IssuedDate,
-			"issued_by":   p.IssuedBy,
+			"user_id":        userID,
+			"number":         p.Number,
+			"citizenship":    p.Citizenship,
+			"type":           p.Type,
+			"issued_date":    p.IssuedDate,
+			"issued_by":      p.IssuedBy,
+			"issued_by_code": p.IssuedByCode,
 		})
 
 	if err := row.Scan(&p.ID); err != nil {
@@ -100,16 +101,17 @@ func (s *storage) UpdatePassport(ctx context.Context, userID uint64, mp model.Pa
 	citizenship = @citizenship,
 	type = @type, 
 	issued_date = @issued_date, 
-	issued_by = @issued_by
+	issued_by = @issued_by, issued_by_code = @issued_by_code
 	WHERE id=@id AND user_id=@user_id`,
 		pgx.NamedArgs{
-			"user_id":     userID,
-			"id":          p.ID,
-			"number":      p.Number,
-			"citizenship": p.Citizenship,
-			"type":        p.Type,
-			"issued_date": p.IssuedDate,
-			"issued_by":   p.IssuedBy,
+			"user_id":        userID,
+			"id":             p.ID,
+			"number":         p.Number,
+			"citizenship":    p.Citizenship,
+			"type":           p.Type,
+			"issued_date":    p.IssuedDate,
+			"issued_by":      p.IssuedBy,
+			"issued_by_code": p.IssuedByCode,
 		})
 
 	if err != nil {

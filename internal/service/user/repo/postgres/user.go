@@ -35,7 +35,7 @@ const (
 	getUserQuery = `SELECT 
 users.id AS id, lastname, firstname, middlename, gender,
 date_of_birth, place_of_birth, grade, mobile_phone_number, office_phone_number,
-work_email, registration_address, residential_address, nationality,
+work_email, registration_address, residential_address,
 insurance_number, taxpayer_number, users.department_id AS department_id, position_id,
 positions.title AS position, departments.title AS department,
 (SELECT COUNT(*)>0 FROM scans WHERE user_id=@user_id AND scans.type='ИНН') AS insurance_has_scan,
@@ -280,15 +280,15 @@ func (s *storage) Add(ctx context.Context, mu model.User) (uint64, error) {
 			gender, date_of_birth, place_of_birth, 
 			grade, mobile_phone_number, office_phone_number, work_email, 
 			registration_address, residential_address, 
-			nationality, insurance_number, 
-			taxpayer_number, department_id, position_id)
+			insurance_number, taxpayer_number, 
+			department_id, position_id)
 		VALUES
 			(@lastname, @firstname, @middlename, 
 			@gender, @date_of_birth, @place_of_birth, 
 			@grade, @mobile_phone_number, @office_phone_number, @email, 
 			@registration_address, @residential_address, 
-			@nationality, @insurance_number, 
-			@taxpayer_number, @department_id, @position_id)
+			@insurance_number, @taxpayer_number, 
+			@department_id, @position_id)
 			RETURNING id`,
 		pgx.NamedArgs{
 			"lastname":             user.LastName,
@@ -303,7 +303,6 @@ func (s *storage) Add(ctx context.Context, mu model.User) (uint64, error) {
 			"email":                user.Email,
 			"registration_address": user.RegistrationAddress,
 			"residential_address":  user.ResidentialAddress,
-			"nationality":          user.Nationality,
 			"insurance_number":     user.InsuranceNumber,
 			"taxpayer_number":      user.TaxpayerNumber,
 			"department_id":        user.DepartmentID,
@@ -335,8 +334,7 @@ func (s *storage) Update(ctx context.Context, mu model.User) error {
 	gender = @gender, date_of_birth = @date_of_birth, place_of_birth = @place_of_birth, 
 	grade = @grade, mobile_phone_number = @mobile_phone_number, office_phone_number = @office_phone_number, work_email = @email, 
 	registration_address = @registration_address, residential_address = @residential_address, 
-	nationality = @nationality, insurance_number = @insurance_number, 
-	taxpayer_number = @taxpayer_number, 
+	insurance_number = @insurance_number, taxpayer_number = @taxpayer_number, 
 	department_id = @department_id, position_id = @position_id
 	WHERE id=@id`,
 		pgx.NamedArgs{
@@ -353,7 +351,6 @@ func (s *storage) Update(ctx context.Context, mu model.User) error {
 			"email":                user.Email,
 			"registration_address": user.RegistrationAddress,
 			"residential_address":  user.ResidentialAddress,
-			"nationality":          user.Nationality,
 			"insurance_number":     user.InsuranceNumber,
 			"taxpayer_number":      user.TaxpayerNumber,
 			"department_id":        user.DepartmentID,

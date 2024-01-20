@@ -4,6 +4,8 @@
 package api
 
 import (
+	"time"
+
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
@@ -66,8 +68,8 @@ type AddContractRequest struct {
 	DateFrom        openapi_types.Date  `json:"date_from"`
 	DateTo          *openapi_types.Date `json:"date_to,omitempty"`
 	Number          string              `json:"number"`
-	Type            ContractType        `json:"type"`
 	ProbationPeriod *uint               `json:"probation_period,omitempty"`
+	Type            ContractType        `json:"type"`
 	WorkTypeID      uint64              `json:"work_type_id"`
 }
 
@@ -85,10 +87,12 @@ type AddEducationRequest struct {
 
 // AddPassportRequest defines model for AddPassportRequest.
 type AddPassportRequest struct {
-	IssuedBy   string             `json:"issued_by"`
-	IssuedDate openapi_types.Date `json:"issued_date"`
-	Number     string             `json:"number"`
-	Type       PassportType       `json:"type"`
+	Citizenship  string             `json:"citizenship"`
+	IssuedBy     *string            `json:"issued_by,omitempty"`
+	IssuedByCode *string            `json:"issued_by_code,omitempty"`
+	IssuedDate   openapi_types.Date `json:"issued_date"`
+	Number       string             `json:"number"`
+	Type         PassportType       `json:"type"`
 }
 
 // AddTrainingRequest defines model for AddTrainingRequest.
@@ -118,7 +122,6 @@ type AddUserRequest struct {
 	LastName            string              `json:"last_name"`
 	MiddleName          string              `json:"middle_name"`
 	Military            *Military           `json:"military,omitempty"`
-	Nationality         string              `json:"nationality"`
 	MobilePhoneNumber   string              `json:"mobile_phone_number"`
 	OfficePhoneNumber   string              `json:"office_phone_number"`
 	PlaceOfBirth        string              `json:"place_of_birth"`
@@ -138,7 +141,7 @@ type AddVacationRequest struct {
 
 // AddVisaRequest defines model for AddVisaRequest.
 type AddVisaRequest struct {
-	IssuedState string             `json:"issued_state"`
+	IssuedState *string            `json:"issued_state,omitempty"`
 	Number      string             `json:"number"`
 	Type        string             `json:"type"`
 	ValidFrom   openapi_types.Date `json:"valid_from"`
@@ -161,8 +164,8 @@ type Contract struct {
 	HasScan         *bool               `json:"has_scan,omitempty"`
 	ID              uint64              `json:"id"`
 	Number          string              `json:"number"`
-	Type            ContractType        `json:"type"`
 	ProbationPeriod *uint               `json:"probation_period,omitempty"`
+	Type            ContractType        `json:"type"`
 	WorkTypeID      uint64              `json:"work_type_id"`
 }
 
@@ -201,12 +204,6 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-// ExpandedPassport defines model for ExpandedPassport.
-type ExpandedPassport struct {
-	Passport
-	Visas []Visa `json:"visas"`
-}
-
 // Gender defines model for Gender.
 type Gender string
 
@@ -216,17 +213,15 @@ type GetContractResponse = Contract
 // GetEducationResponse defines model for GetEducationResponse.
 type GetEducationResponse = Education
 
-// GetExpandedPassportResponse defines model for GetExpandedPassportResponse.
-type GetExpandedPassportResponse = ExpandedPassport
-
 // GetExpandedUserResponse defines model for GetExpandedUserResponse.
 type GetExpandedUserResponse struct {
 	GetUserResponse
-	Contracts  []Contract  `json:"contracts"`
-	Educations []Education `json:"educations"`
-	Passports  []Passport  `json:"passports"`
-	Trainings  []Training  `json:"trainings"`
-	Vacations  []Vacation  `json:"vacations"`
+	PositionTrack PositionTrack `json:"position_track"`
+	Contracts     []Contract    `json:"contracts"`
+	Educations    []Education   `json:"educations"`
+	Passports     []Passport    `json:"passports"`
+	Trainings     []Training    `json:"trainings"`
+	Vacations     []Vacation    `json:"vacations"`
 }
 
 // GetPassportResponse defines model for GetPassportResponse.
@@ -250,13 +245,11 @@ type GetUserResponse struct {
 	LastName               string                 `json:"last_name"`
 	MiddleName             string                 `json:"middle_name"`
 	Military               *Military              `json:"military,omitempty"`
-	Nationality            string                 `json:"nationality"`
-	PersonalDataProcessing PersonalDataProcessing `json:"personal_data_processing"`
 	MobilePhoneNumber      string                 `json:"mobile_phone_number"`
 	OfficePhoneNumber      string                 `json:"office_phone_number"`
+	PersonalDataProcessing PersonalDataProcessing `json:"personal_data_processing"`
 	PlaceOfBirth           string                 `json:"place_of_birth"`
 	PositionID             uint64                 `json:"position_id"`
-	PositionTrack          PositionTrack          `json:"position_track"`
 	RegistrationAddress    string                 `json:"registration_address"`
 	ResidentialAddress     string                 `json:"residential_address"`
 	Taxpayer               Taxpayer               `json:"taxpayer"`
@@ -349,13 +342,14 @@ type Military struct {
 
 // Passport defines model for Passport.
 type Passport struct {
-	HasScan    bool               `json:"has_scan"`
-	ID         uint64             `json:"id"`
-	IssuedBy   string             `json:"issued_by"`
-	IssuedDate openapi_types.Date `json:"issued_date"`
-	Number     string             `json:"number"`
-	Type       PassportType       `json:"type"`
-	VisasCount uint               `json:"visas_count"`
+	Citizenship  string             `json:"citizenship"`
+	HasScan      bool               `json:"has_scan"`
+	ID           uint64             `json:"id"`
+	IssuedBy     *string            `json:"issued_by,omitempty"`
+	IssuedByCode *string            `json:"issued_by_code,omitempty"`
+	IssuedDate   openapi_types.Date `json:"issued_date"`
+	Number       string             `json:"number"`
+	Type         PassportType       `json:"type"`
 }
 
 // PassportType defines model for PassportType.
@@ -363,10 +357,12 @@ type PassportType string
 
 // PatchContractRequest defines model for PatchContractRequest.
 type PatchContractRequest struct {
-	DateFrom *openapi_types.Date `json:"date_from,omitempty"`
-	DateTo   *openapi_types.Date `json:"date_to,omitempty"`
-	Number   *string             `json:"number,omitempty"`
-	Type     *ContractType       `json:"type,omitempty"`
+	DateFrom        *openapi_types.Date `json:"date_from,omitempty"`
+	DateTo          *openapi_types.Date `json:"date_to,omitempty"`
+	Number          *string             `json:"number,omitempty"`
+	ProbationPeriod *uint               `json:"probation_period,omitempty"`
+	Type            *ContractType       `json:"type,omitempty"`
+	WorkTypeID      *int                `json:"work_type_id,omitempty"`
 }
 
 // PatchEducationRequest defines model for PatchEducationRequest.
@@ -383,10 +379,12 @@ type PatchEducationRequest struct {
 
 // PatchPassportRequest defines model for PatchPassportRequest.
 type PatchPassportRequest struct {
-	IssuedBy   *string             `json:"issued_by,omitempty"`
-	IssuedDate *openapi_types.Date `json:"issued_date,omitempty"`
-	Number     *string             `json:"number,omitempty"`
-	Type       *PassportType       `json:"type,omitempty"`
+	Citizenship  *string             `json:"citizenship,omitempty"`
+	IssuedBy     *string             `json:"issued_by,omitempty"`
+	IssuedByCode *string             `json:"issued_by_code,omitempty"`
+	IssuedDate   *openapi_types.Date `json:"issued_date,omitempty"`
+	Number       *string             `json:"number,omitempty"`
+	Type         *PassportType       `json:"type,omitempty"`
 }
 
 // PatchTrainingRequest defines model for PatchTrainingRequest.
@@ -416,12 +414,10 @@ type PatchUserRequest struct {
 	LastName            *string              `json:"last_name,omitempty"`
 	MiddleName          *string              `json:"middle_name,omitempty"`
 	Military            *Military            `json:"military,omitempty"`
-	Nationality         *string              `json:"nationality,omitempty"`
 	MobilePhoneNumber   *string              `json:"mobile_phone_number,omitempty"`
 	OfficePhoneNumber   *string              `json:"office_phone_number,omitempty"`
 	PlaceOfBirth        *string              `json:"place_of_birth,omitempty"`
 	PositionID          *uint64              `json:"position_id,omitempty"`
-	PositionTrack       PositionTrack        `json:"position_track,omitempty"`
 	RegistrationAddress *string              `json:"registration_address,omitempty"`
 	ResidentialAddress  *string              `json:"residential_address,omitempty"`
 	Taxpayer            *Taxpayer            `json:"taxpayer,omitempty"`
@@ -454,9 +450,9 @@ type PositionTrack = []PositionTrackItem
 
 // PositionTrackItem defines model for PositionTrackItem.
 type PositionTrackItem struct {
-	DateFrom   openapi_types.Date  `json:"date_from"`
-	DateTo     *openapi_types.Date `json:"date_to,omitempty"`
-	PositionID uint64              `json:"position_id"`
+	DateFrom openapi_types.Date  `json:"date_from"`
+	DateTo   *openapi_types.Date `json:"date_to,omitempty"`
+	Position string              `json:"position"`
 }
 
 // PutContractRequest defines model for PutContractRequest.
@@ -464,8 +460,8 @@ type PutContractRequest struct {
 	DateFrom        openapi_types.Date  `json:"date_from"`
 	DateTo          *openapi_types.Date `json:"date_to,omitempty"`
 	Number          string              `json:"number"`
-	Type            ContractType        `json:"type"`
 	ProbationPeriod *uint               `json:"probation_period,omitempty"`
+	Type            ContractType        `json:"type"`
 	WorkTypeID      uint64              `json:"work_type_id"`
 }
 
@@ -483,10 +479,12 @@ type PutEducationRequest struct {
 
 // PutPassportRequest defines model for PutPassportRequest.
 type PutPassportRequest struct {
-	IssuedBy   string             `json:"issued_by"`
-	IssuedDate openapi_types.Date `json:"issued_date"`
-	Number     string             `json:"number"`
-	Type       PassportType       `json:"type"`
+	Citizenship  string             `json:"citizenship"`
+	IssuedBy     *string            `json:"issued_by,omitempty"`
+	IssuedByCode *string            `json:"issued_by_code,omitempty"`
+	IssuedDate   openapi_types.Date `json:"issued_date"`
+	Number       string             `json:"number"`
+	Type         PassportType       `json:"type"`
 }
 
 // PutTrainingRequest defines model for PutTrainingRequest.
@@ -516,12 +514,10 @@ type PutUserRequest struct {
 	LastName            string              `json:"last_name"`
 	MiddleName          string              `json:"middle_name"`
 	Military            *Military           `json:"military,omitempty"`
-	Nationality         string              `json:"nationality"`
 	MobilePhoneNumber   string              `json:"mobile_phone_number"`
 	OfficePhoneNumber   string              `json:"office_phone_number"`
 	PlaceOfBirth        string              `json:"place_of_birth"`
 	PositionID          uint64              `json:"position_id"`
-	PositionTrack       PositionTrack       `json:"position_track"`
 	RegistrationAddress string              `json:"registration_address"`
 	ResidentialAddress  string              `json:"residential_address"`
 	Taxpayer            Taxpayer            `json:"taxpayer"`
@@ -537,7 +533,7 @@ type PutVacationRequest struct {
 
 // PutVisaRequest defines model for PutVisaRequest.
 type PutVisaRequest struct {
-	IssuedState string             `json:"issued_state"`
+	IssuedState *string            `json:"issued_state,omitempty"`
 	Number      string             `json:"number"`
 	Type        string             `json:"type"`
 	ValidFrom   openapi_types.Date `json:"valid_from"`
@@ -552,10 +548,12 @@ type Scan struct {
 	DocumentID *uint64  `json:"document_id,omitempty"`
 	ID         uint64   `json:"id"`
 	Type       ScanType `json:"type"`
-	Url        string   `json:"url,omitempty"`
 
 	// UploadAt an upload date-time as defined by full-date - RFC3339
-	UploadAt string `json:"upload_at,omitempty"`
+	UploadAt time.Time `json:"upload_at"`
+
+	// Url URL to directly download objects (HTTP GET operations)
+	Url string `json:"url"`
 }
 
 // ScanType defines model for ScanType.
@@ -606,7 +604,7 @@ type Vacation struct {
 type Visa struct {
 	HasScan     bool               `json:"has_scan"`
 	ID          uint64             `json:"id"`
-	IssuedState string             `json:"issued_state"`
+	IssuedState *string            `json:"issued_state,omitempty"`
 	Number      string             `json:"number"`
 	Type        string             `json:"type"`
 	ValidFrom   openapi_types.Date `json:"valid_from"`
@@ -707,15 +705,6 @@ type PatchPassportJSONRequestBody = PatchPassportRequest
 // PutPassportJSONRequestBody defines body for PutPassport for application/json ContentType.
 type PutPassportJSONRequestBody = PutPassportRequest
 
-// AddVisaJSONRequestBody defines body for AddVisa for application/json ContentType.
-type AddVisaJSONRequestBody = AddVisaRequest
-
-// PatchVisaJSONRequestBody defines body for PatchVisa for application/json ContentType.
-type PatchVisaJSONRequestBody = PatchVisaRequest
-
-// PutVisaJSONRequestBody defines body for PutVisa for application/json ContentType.
-type PutVisaJSONRequestBody = PutVisaRequest
-
 // UploadScanMultipartRequestBody defines body for UploadScan for multipart/form-data ContentType.
 type UploadScanMultipartRequestBody UploadScanMultipartBody
 
@@ -736,3 +725,12 @@ type PatchVacationJSONRequestBody = PatchVacationRequest
 
 // PutVacationJSONRequestBody defines body for PutVacation for application/json ContentType.
 type PutVacationJSONRequestBody = PutVacationRequest
+
+// AddVisaJSONRequestBody defines body for AddVisa for application/json ContentType.
+type AddVisaJSONRequestBody = AddVisaRequest
+
+// PatchVisaJSONRequestBody defines body for PatchVisa for application/json ContentType.
+type PatchVisaJSONRequestBody = PatchVisaRequest
+
+// PutVisaJSONRequestBody defines body for PutVisa for application/json ContentType.
+type PutVisaJSONRequestBody = PutVisaRequest

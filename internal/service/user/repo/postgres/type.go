@@ -26,7 +26,6 @@ type user struct {
 	Grade                         string    `db:"grade"`
 	RegistrationAddress           string    `db:"registration_address"`
 	ResidentialAddress            string    `db:"residential_address"`
-	Nationality                   string    `db:"nationality"`
 	InsuranceNumber               string    `db:"insurance_number"`
 	InsuranceHasScan              bool      `db:"insurance_has_scan"`
 	TaxpayerNumber                string    `db:"taxpayer_number"`
@@ -64,7 +63,6 @@ func convertUserToModelUser(user *user) model.User {
 		Grade:               user.Grade,
 		RegistrationAddress: user.RegistrationAddress,
 		ResidentialAddress:  user.ResidentialAddress,
-		Nationality:         user.Nationality,
 		Insurance: model.Insurance{
 			Number:  user.InsuranceNumber,
 			HasScan: user.InsuranceHasScan,
@@ -112,7 +110,6 @@ func convertModelUserToUser(u *model.User) user {
 		Grade:               u.Grade,
 		RegistrationAddress: u.RegistrationAddress,
 		ResidentialAddress:  u.ResidentialAddress,
-		Nationality:         u.Nationality,
 		InsuranceNumber:     u.Insurance.Number,
 		TaxpayerNumber:      u.Taxpayer.Number,
 		PositionID:          u.PositionID,
@@ -154,13 +151,14 @@ func convertTrainingToModelTraining(tr training) model.Training {
 }
 
 type passport struct {
-	ID          uint64       `db:"id"`
-	Citizenship string       `db:"Citizenship"`
-	IssuedBy    string       `db:"issued_by"`
-	IssuedDate  time.Time    `db:"issued_date"`
-	Number      string       `db:"number"`
-	Type        passportType `db:"type"`
-	HasScan     bool         `db:"has_scan"`
+	ID           uint64       `db:"id"`
+	Citizenship  string       `db:"Citizenship"`
+	IssuedBy     *string      `db:"issued_by"`
+	IssuedByCode *string      `db:"issued_by_code"`
+	IssuedDate   time.Time    `db:"issued_date"`
+	Number       string       `db:"number"`
+	Type         passportType `db:"type"`
+	HasScan      bool         `db:"has_scan"`
 }
 
 type passportType string
@@ -213,7 +211,7 @@ type visa struct {
 	ID          uint64    `db:"id"`
 	Number      string    `db:"number"`
 	Type        string    `db:"type"`
-	IssuedState string    `db:"issued_state"`
+	IssuedState *string   `db:"issued_state"`
 	ValidTo     time.Time `db:"valid_to"`
 	ValidFrom   time.Time `db:"valid_from"`
 }
