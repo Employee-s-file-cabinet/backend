@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"strings"
+	"time"
 
 	"github.com/minio/minio-go/v7"
 
@@ -19,13 +19,15 @@ const (
 
 type storage struct {
 	minioClient *minio.Client
+	urlExpires  time.Duration
 }
 
-func New(ctx context.Context, client *minio.Client) (*storage, error) {
+func New(ctx context.Context, client *minio.Client, cfg s3.Config) (*storage, error) {
 	const op = "s3 storage: new"
 
 	s := &storage{
 		minioClient: client,
+		urlExpires:  cfg.URLExpires,
 	}
 
 	// check to see if we already own the bucket
@@ -81,10 +83,15 @@ func (s *storage) Download(ctx context.Context, prefix, name, etag string) (s3.F
 
 	info, err := reader.Stat()
 	if err != nil {
-		if strings.Contains(err.Error(), http.StatusText(http.StatusNotModified)) {
-			return s3.File{}, nil, fmt.Errorf("%s: %w", op, repoerr.ErrRecordNotModified)
+		errResponse := minio.ToErrorResponse(err)
+		switch errResponse.StatusCode {
+		case http.StatusNotFound:
+			return s3.File{}, nil, fmt.Errorf("%s: %w", op, repoerr.ErrRecordNotFound)
+		case http.StatusNotModified:
+			return s3.File{}, nil, fmt.Errorf("%s: %w", op, repoerr.ErrRecordNotModifiedSince)
+		default:
+			return s3.File{}, nil, fmt.Errorf("%s: %w", op, err)
 		}
-		return s3.File{}, nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return s3.File{
@@ -95,4 +102,15 @@ func (s *storage) Download(ctx context.Context, prefix, name, etag string) (s3.F
 		ETag:        info.ETag,
 		Reader:      reader,
 	}, reader.Close, nil
+}
+
+func (s *storage) PresignedURL(ctx context.Context, prefix, name string) (string, error) {
+	const op = "s3 storage: object presigned url"
+
+	url, err := s.minioClient.PresignedGetObject(ctx, bucketName, fmt.Sprintf("%s_%s", prefix, name), s.urlExpires, nil)
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	return url.String(), nil
 }

@@ -9,6 +9,7 @@ type Passport struct {
 	Number     string
 	Type       PassportType
 	VisasCount uint
+	HasScan    bool
 }
 
 type PassportType string
@@ -18,3 +19,8 @@ const (
 	PassportTypeForeigners PassportType = "foreigners"
 	PassportTypeInternal   PassportType = "internal"
 )
+
+type ExpandedPassport struct {
+	Passport
+	Visas []Visa
+}

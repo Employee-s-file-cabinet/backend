@@ -15,11 +15,12 @@ import (
 func (s *storage) ListPassports(ctx context.Context, userID uint64) ([]model.Passport, error) {
 	const op = "postrgresql user storage: list passports"
 
-	rows, err := s.DB.Query(ctx, `SELECT 
-	id, number, type, issued_date, issued_by, 
-	(SELECT COUNT(*) FROM visas WHERE visas.passport_id = passports.id) AS visas_count 
-	FROM passports
-	WHERE passports.user_id = @user_id`,
+	rows, err := s.DB.Query(ctx,
+		`SELECT id, number, type, issued_date, issued_by, 
+		(SELECT COUNT(*) FROM visas WHERE visas.passport_id = passports.id) AS visas_count,
+		(SELECT COUNT(*)>0 FROM scans WHERE scans.document_id=passports.id AND scans.type='Паспорт') AS has_scan
+		FROM passports
+		WHERE passports.user_id = @user_id`,
 		pgx.NamedArgs{"user_id": userID})
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -42,7 +43,8 @@ func (s *storage) GetPassport(ctx context.Context, userID, passportID uint64) (*
 
 	rows, err := s.DB.Query(ctx,
 		`SELECT id, number, type, issued_date, issued_by,
-		(SELECT COUNT(*) FROM visas WHERE visas.passport_id = passports.id) AS visas_count 
+		(SELECT COUNT(*) FROM visas WHERE visas.passport_id = passports.id) AS visas_count,
+		(SELECT COUNT(*)>0 FROM scans WHERE user_id=@user_id AND scans.document_id=passports.id AND scans.type='Паспорт') AS has_scan
 		FROM passports
 		WHERE id = @passport_id AND user_id = @user_id`,
 		pgx.NamedArgs{
@@ -54,7 +56,7 @@ func (s *storage) GetPassport(ctx context.Context, userID, passportID uint64) (*
 	}
 	p, err := pgx.CollectExactlyOneRow[passport](rows, pgx.RowToStructByNameLax[passport])
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, fmt.Errorf("%s: %w", op, repoerr.ErrRecordNotFound)
+		return nil, repoerr.ErrRecordNotFound
 	}
 
 	med := convertPassportToModelPassport(p)
@@ -81,10 +83,39 @@ func (s *storage) AddPassport(ctx context.Context, userID uint64, mp model.Passp
 	if err := row.Scan(&p.ID); err != nil {
 		if strings.Contains(err.Error(), "23") && // Integrity Constraint Violation
 			strings.Contains(err.Error(), "user_id") {
-			return 0, fmt.Errorf("%s: the user does not exist: %w", op, repoerr.ErrRecordNotFound)
+			return 0, fmt.Errorf("the user does not exist: %w", repoerr.ErrConflict)
 		}
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return p.ID, nil
+}
+
+func (s *storage) UpdatePassport(ctx context.Context, userID uint64, mp model.Passport) error {
+	const op = "postrgresql user storage: update passport"
+
+	p := convertModelPassportToPassport(mp)
+
+	tag, err := s.DB.Exec(ctx, `UPDATE passports
+	SET number = @number, 
+	type = @type, 
+	issued_date = @issued_date, 
+	issued_by = @issued_by
+	WHERE id=@id AND user_id=@user_id`,
+		pgx.NamedArgs{
+			"user_id":     userID,
+			"id":          p.ID,
+			"number":      p.Number,
+			"type":        p.Type,
+			"issued_date": p.IssuedDate,
+			"issued_by":   p.IssuedBy,
+		})
+
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if tag.RowsAffected() == 0 { // it's ok for pgx
+		return repoerr.ErrRecordNotAffected
+	}
+	return nil
 }
